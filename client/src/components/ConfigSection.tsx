@@ -60,8 +60,8 @@ const ConfigSection = ({
   const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<ConfigFormValues>({
     resolver: zodResolver(configSchema),
     defaultValues: {
-      email: botConfig?.email || 'user@example.com',
-      password: botConfig?.password || 'password123',
+      email: botConfig?.email || 'rehman.shoj2@gmail.com',
+      password: botConfig?.password || 'Rehm@n998088',
       rememberCredentials: botConfig?.rememberCredentials ?? true,
       minFollowers: botConfig?.minFollowers || 1000,
       maxFollowers: botConfig?.maxFollowers || 2000,

@@ -1,6 +1,43 @@
 import { ActivityLog, BotConfig, BotStatus, Creator } from "./types";
 import { apiRequest } from "./queryClient";
 
+// Gemini AI API for intelligent content generation
+export async function generateAIContent(prompt: string): Promise<string> {
+  try {
+    // Using the environment variable GOOGLE_API_KEY
+    const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-goog-api-key': process.env.GOOGLE_API_KEY || ''
+      },
+      body: JSON.stringify({
+        contents: [
+          {
+            parts: [
+              { text: prompt }
+            ]
+          }
+        ],
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 800
+        }
+      })
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Failed to generate AI content: ${response.statusText}`);
+    }
+    
+    const data = await response.json();
+    return data.candidates[0].content.parts[0].text;
+  } catch (error) {
+    console.error('Error generating AI content:', error);
+    return "Unable to generate content at this time. Please try again later.";
+  }
+}
+
 // Bot Status
 export async function getBotStatus(): Promise<BotStatus> {
   const res = await fetch("/api/status", { credentials: "include" });

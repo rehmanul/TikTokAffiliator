@@ -8,6 +8,7 @@ import ActivityLogs from "@/components/ActivityLogs";
 import VerificationModal from "@/components/VerificationModal";
 import BotConsole from "@/components/BotConsole";
 import Notification from "@/components/Notification";
+import AIContentGenerator from "@/components/AIContentGenerator";
 import { getBotStatus, getActivityLogs, getBotConfig, startBot, stopBot } from "@/lib/api";
 import { queryClient } from "@/lib/queryClient";
 import { BotStatus, BotConfig, ActivityLog, NotificationType } from "@/lib/types";
@@ -153,6 +154,19 @@ const Dashboard = () => {
               );
             }}
             onTestLogin={() => setIsVerificationModalOpen(true)}
+          />
+          
+          {/* AI Content Generator */}
+          <AIContentGenerator 
+            onContentGenerated={(content) => {
+              showNotification(
+                "Message Generated", 
+                "AI-generated message is ready to use with your invitations.",
+                "success"
+              );
+              // Here we could store the generated content in state or pass it to another component
+              console.log("Generated content:", content);
+            }}
           />
           
           {/* Activity Logs */}
