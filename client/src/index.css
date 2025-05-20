@@ -1,0 +1,161 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 0 0% 100%;
+  --foreground: 20 14.3% 4.1%;
+  --muted: 60 4.8% 95.9%;
+  --muted-foreground: 25 5.3% 44.7%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 20 14.3% 4.1%;
+  --card: 0 0% 100%;
+  --card-foreground: 20 14.3% 4.1%;
+  --border: 20 5.9% 90%;
+  --input: 20 5.9% 90%;
+  
+  /* TikTok colors */
+  --primary: 187 100% 40%; /* Tiktok teal: #00AECC */
+  --primary-foreground: 0 0% 100%;
+  --secondary: 0 79% 57%; /* Tiktok red: #FE2C55 */
+  --secondary-foreground: 0 0% 100%;
+  --accent: 0 0% 97%; /* Tiktok gray: #F7F7F7 */
+  --accent-foreground: 0 0% 0%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 60 9.1% 97.8%;
+  --ring: 187 100% 40%;
+  --radius: 0.5rem;
+  
+  /* Chart colors */
+  --chart-1: 187 100% 40%; /* Tiktok teal */
+  --chart-2: 0 79% 57%; /* Tiktok red */
+  --chart-3: 217 91% 60%; /* Info blue */
+  --chart-4: 130 68% 42%; /* Success green */
+  --chart-5: 35 100% 50%; /* Warning orange */
+  
+  /* Status colors */
+  --success: 142 76% 47%;
+  --warning: 36 100% 50%;
+  --error: 0 84% 60%;
+  --info: 200 100% 50%;
+  
+  /* Sidebar colors */
+  --sidebar-background: 0 0% 100%;
+  --sidebar-foreground: 20 14.3% 4.1%;
+  --sidebar-primary: 187 100% 40%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 0 0% 97%;
+  --sidebar-accent-foreground: 0 0% 0%;
+  --sidebar-border: 20 5.9% 90%;
+  --sidebar-ring: 187 100% 40%;
+}
+
+.dark {
+  --background: 240 10% 3.9%;
+  --foreground: 0 0% 98%;
+  --muted: 240 3.7% 15.9%;
+  --muted-foreground: 240 5% 64.9%;
+  --popover: 240 10% 3.9%;
+  --popover-foreground: 0 0% 98%;
+  --card: 240 10% 3.9%;
+  --card-foreground: 0 0% 98%;
+  --border: 240 3.7% 15.9%;
+  --input: 240 3.7% 15.9%;
+  
+  /* TikTok colors */
+  --primary: 187 100% 40%; /* Tiktok teal */
+  --primary-foreground: 0 0% 100%;
+  --secondary: 0 79% 57%; /* Tiktok red */
+  --secondary-foreground: 0 0% 100%;
+  --accent: 240 3.7% 15.9%; 
+  --accent-foreground: 0 0% 98%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 0 0% 98%;
+  --ring: 187 100% 40%;
+  --radius: 0.5rem;
+  
+  /* Chart colors - in dark mode make them more vibrant */
+  --chart-1: 187 100% 45%; /* Tiktok teal */
+  --chart-2: 0 79% 62%; /* Tiktok red */
+  --chart-3: 217 91% 65%; /* Info blue */
+  --chart-4: 130 68% 47%; /* Success green */
+  --chart-5: 35 100% 55%; /* Warning orange */
+  
+  /* Status colors */
+  --success: 142 76% 47%;
+  --warning: 36 100% 50%;
+  --error: 0 84% 60%;
+  --info: 200 100% 50%;
+  
+  /* Sidebar colors */
+  --sidebar-background: 240 10% 3.9%;
+  --sidebar-foreground: 0 0% 98%;
+  --sidebar-primary: 187 100% 40%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 240 3.7% 15.9%;
+  --sidebar-accent-foreground: 0 0% 98%;
+  --sidebar-border: 240 3.7% 15.9%;
+  --sidebar-ring: 187 100% 40%;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+  }
+}
+
+.bg-tiktok-teal {
+  @apply bg-primary;
+}
+
+.bg-tiktok-red {
+  @apply bg-secondary;
+}
+
+.bg-tiktok-gray {
+  @apply bg-accent;
+}
+
+.text-tiktok-teal {
+  @apply text-primary;
+}
+
+.text-tiktok-red {
+  @apply text-secondary;
+}
+
+.text-success {
+  @apply text-green-500;
+}
+
+.text-error {
+  @apply text-red-500;
+}
+
+.text-warning {
+  @apply text-amber-500;
+}
+
+.text-info {
+  @apply text-blue-500;
+}
+
+.bg-success {
+  @apply bg-green-500;
+}
+
+.bg-error {
+  @apply bg-red-500;
+}
+
+.bg-warning {
+  @apply bg-amber-500;
+}
+
+.bg-info {
+  @apply bg-blue-500;
+}
