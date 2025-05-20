@@ -93,18 +93,58 @@ export async function navigateToAffiliateCenter(page: Page, logFn: LogFunction):
   try {
     await logFn('Navigating to Affiliate Centre...', 'Navigation', 'Pending');
     
-    // Go to Affiliate Centre
-    await page.goto('https://affiliate.tiktok.com/product/open-collaboration/shop_region=GB', {
+    // Go to dashboard
+    await page.goto('https://seller-uk.tiktok.com/product/dashboard', {
       waitUntil: 'networkidle2',
       timeout: 60000
     });
     
     await randomDelay(2000, 3000);
     
+    // Click on the Target Collaboration section
+    // Using the selector you provided
+    await logFn('Locating Target Collaboration section...', 'Navigation', 'Pending');
+    
+    try {
+      // Try the CSS selector first
+      const targetCollaborationSelector = '#root > div > div.container > div > div > div.flex.justify-between.mb-21 > div:nth-child(2)';
+      await page.waitForSelector(targetCollaborationSelector, { timeout: 10000 });
+      await page.click(targetCollaborationSelector);
+    } catch (error) {
+      // If CSS selector fails, try XPath
+      const targetCollaborationXPath = '/html/body/div[1]/div/div[2]/div/div/div[2]/div[2]';
+      await page.waitForXPath(targetCollaborationXPath, { timeout: 10000 });
+      const [targetElement] = await page.$x(targetCollaborationXPath);
+      if (targetElement) {
+        await targetElement.click();
+      } else {
+        throw new Error('Target collaboration element not found');
+      }
+    }
+    
+    await randomDelay(3000, 5000);
+    
+    // Wait for the new window to open with the affiliate invitation URL
+    await logFn('Waiting for affiliate invitation page...', 'Navigation', 'Pending');
+    const pages = await page.browser().pages();
+    const affiliatePage = pages.find(p => 
+      p.url().includes('affiliate.tiktok.com/connection/target-invitation')
+    );
+    
+    if (!affiliatePage) {
+      throw new Error('Affiliate invitation page not opened');
+    }
+    
+    // Switch to the new page
+    await logFn('Switching to affiliate invitation page...', 'Navigation', 'Pending');
+    await affiliatePage.bringToFront();
+    
+    await randomDelay(2000, 3000);
+    
     // Check if we're in the right place
-    const isAffiliateCentre = await page.evaluate(() => {
-      return document.body.textContent?.includes('Affiliate Centre') || 
-             document.body.textContent?.includes('Affiliate Center');
+    const isAffiliateCentre = await affiliatePage.evaluate(() => {
+      return document.body.textContent?.includes('Target Invitation') || 
+             document.body.textContent?.includes('Find creators');
     });
     
     if (!isAffiliateCentre) {
@@ -165,100 +205,176 @@ export async function applyFilters(
   try {
     await logFn(`Applying filters: ${filters.minFollowers}-${filters.maxFollowers} followers, ${filters.categories.join(', ')}`, 'Filter', 'Pending');
     
-    // Click on Followers tab
-    await page.evaluate(() => {
-      const tabs = Array.from(document.querySelectorAll('button, div[role="tab"]'));
-      const followersTab = tabs.find(tab => tab.textContent?.includes('Followers'));
-      if (followersTab) {
-        (followersTab as HTMLElement).click();
-        return true;
-      }
-      return false;
-    });
+    // Click on the Creators button to access filter options
+    const creatorsButtonXPath = '//button[contains(@data-tid, "m4b_button") and .//span[text()="Creators"]]';
     
-    await randomDelay(1000, 2000);
-    
-    // Set follower range
-    await page.evaluate((min, max) => {
-      // Try to find follower count filter button
-      const filterButtons = Array.from(document.querySelectorAll('button, div[role="button"]'));
-      const followerButton = filterButtons.find(button => 
-        button.textContent?.toLowerCase().includes('follower') || 
-        button.textContent?.toLowerCase().includes('following')
-      );
-      
-      if (followerButton) {
-        (followerButton as HTMLElement).click();
-      }
-      
-      // Try to find min/max follower inputs
-      setTimeout(() => {
-        const inputs = Array.from(document.querySelectorAll('input[type="number"]'));
-        if (inputs.length >= 2) {
-          // Assume first is min, second is max
-          const minInput = inputs[0];
-          const maxInput = inputs[1];
-          
-          // Clear and set min
-          minInput.value = '';
-          minInput.dispatchEvent(new Event('input', { bubbles: true }));
-          minInput.value = min.toString();
-          minInput.dispatchEvent(new Event('input', { bubbles: true }));
-          minInput.dispatchEvent(new Event('change', { bubbles: true }));
-          
-          // Clear and set max
-          maxInput.value = '';
-          maxInput.dispatchEvent(new Event('input', { bubbles: true }));
-          maxInput.value = max.toString();
-          maxInput.dispatchEvent(new Event('input', { bubbles: true }));
-          maxInput.dispatchEvent(new Event('change', { bubbles: true }));
+    try {
+      await logFn('Clicking on Creators button...', 'Filter', 'Pending');
+      await page.waitForXPath(creatorsButtonXPath, { timeout: 10000 });
+      const [creatorsButton] = await page.$x(creatorsButtonXPath);
+      if (creatorsButton) {
+        await creatorsButton.click();
+      } else {
+        // Try the menu item instead
+        const findCreatorsXPath = '//div[contains(@class, "m4b-menu-item-children") and text()="Find creators"]';
+        const [findCreatorsElement] = await page.$x(findCreatorsXPath);
+        if (findCreatorsElement) {
+          await findCreatorsElement.click();
+        } else {
+          throw new Error('Could not find Creators button or menu item');
         }
-      }, 500);
-      
-    }, filters.minFollowers, filters.maxFollowers);
+      }
+    } catch (error) {
+      await logFn(`Failed to click Creators button: ${(error as Error).message}`, 'Filter', 'Error');
+      // Try to continue even if this step fails
+    }
     
     await randomDelay(2000, 3000);
     
-    // Apply categories if needed
-    if (filters.categories.length > 0) {
-      await logFn(`Applying category filters: ${filters.categories.join(', ')}`, 'Filter', 'Pending');
+    // Try to locate and click the filter button using the provided selector
+    const filterButtonXPath = '/html/body/div[2]/div/div[2]/main/div/div/div/div/div[3]/div/div/div/div[2]/div[1]/div[1]/div[2]/div/label[1]/button';
+    
+    try {
+      await logFn('Accessing filter options...', 'Filter', 'Pending');
+      await page.waitForXPath(filterButtonXPath, { timeout: 10000 });
+      const [filterButton] = await page.$x(filterButtonXPath);
+      if (filterButton) {
+        await filterButton.click();
+        await logFn('Filter button clicked successfully', 'Filter', 'Success');
+      } else {
+        // Try a more general approach if the specific XPath fails
+        const buttonText = 'Filter';
+        const generalFilterXPath = `//button[contains(., '${buttonText}')]`;
+        const [generalFilterButton] = await page.$x(generalFilterXPath);
+        if (generalFilterButton) {
+          await generalFilterButton.click();
+          await logFn('General filter button clicked', 'Filter', 'Success');
+        } else {
+          throw new Error('Filter button not found');
+        }
+      }
+    } catch (error) {
+      await logFn(`Failed to click filter button: ${(error as Error).message}`, 'Filter', 'Error');
+    }
+    
+    await randomDelay(2000, 3000);
+    
+    // Set follower range
+    await logFn(`Setting follower range to ${filters.minFollowers}-${filters.maxFollowers}...`, 'Filter', 'Pending');
+    
+    try {
+      // Find the Followers filter section
+      const followersFilterXPath = "//div[contains(text(), 'Followers')]";
+      await page.waitForXPath(followersFilterXPath, { timeout: 5000 });
+      const [followersFilterElement] = await page.$x(followersFilterXPath);
       
-      for (const category of filters.categories) {
-        await page.evaluate((categoryName) => {
-          // Try to find category filter button
-          const filterButtons = Array.from(document.querySelectorAll('button, div[role="button"]'));
-          const categoryButton = filterButtons.find(button => 
-            button.textContent?.toLowerCase().includes('category') || 
-            button.textContent?.toLowerCase().includes('product')
-          );
-          
-          if (categoryButton) {
-            (categoryButton as HTMLElement).click();
-            
-            // Wait for dropdown to appear
-            setTimeout(() => {
-              // Try to find the specific category checkbox
-              const checkboxes = Array.from(document.querySelectorAll('input[type="checkbox"]'));
-              for (const checkbox of checkboxes) {
-                const label = checkbox.parentElement?.textContent;
-                if (label && label.includes(categoryName)) {
-                  (checkbox as HTMLElement).click();
-                  break;
-                }
-              }
-            }, 500);
-          }
-        }, category);
-        
+      if (followersFilterElement) {
+        await followersFilterElement.click();
         await randomDelay(1000, 2000);
+        
+        // Now try to find the min/max input fields
+        const inputFields = await page.$$('input[placeholder*="Min"], input[placeholder*="Max"]');
+        
+        if (inputFields.length >= 2) {
+          // Assume first is min, second is max
+          const minInput = inputFields[0];
+          const maxInput = inputFields[1];
+          
+          // Clear and set min followers
+          await minInput.click({ clickCount: 3 }); // Select all text
+          await minInput.type(filters.minFollowers.toString());
+          
+          await randomDelay(500, 1000);
+          
+          // Clear and set max followers
+          await maxInput.click({ clickCount: 3 }); // Select all text
+          await maxInput.type(filters.maxFollowers.toString());
+          
+          await logFn(`Set follower range: ${filters.minFollowers}-${filters.maxFollowers}`, 'Filter', 'Success');
+        } else {
+          await logFn('Could not find min/max follower input fields', 'Filter', 'Warning');
+        }
+      } else {
+        await logFn('Could not find followers filter section', 'Filter', 'Warning');
+      }
+    } catch (error) {
+      await logFn(`Error setting follower range: ${(error as Error).message}`, 'Filter', 'Error');
+    }
+    
+    // Apply button after setting followers
+    const applyButtonXPath = "//button[contains(text(), 'Apply') or contains(text(), 'Confirm') or contains(text(), 'OK')]";
+    try {
+      const [applyButton] = await page.$x(applyButtonXPath);
+      if (applyButton) {
+        await applyButton.click();
+        await logFn('Applied follower filter', 'Filter', 'Success');
+      }
+    } catch (error) {
+      await logFn(`Could not click apply button: ${(error as Error).message}`, 'Filter', 'Warning');
+    }
+    
+    await randomDelay(2000, 3000);
+    
+    // Apply categories if specified
+    if (filters.categories && filters.categories.length > 0) {
+      await logFn(`Setting categories: ${filters.categories.join(', ')}...`, 'Filter', 'Pending');
+      
+      try {
+        // Click on the Filter button again to open filters
+        const [filterButton] = await page.$x(filterButtonXPath);
+        if (filterButton) {
+          await filterButton.click();
+          await randomDelay(1000, 2000);
+          
+          // Find and click on category filter
+          const categoryFilterXPath = "//div[contains(text(), 'Category')]";
+          const [categoryFilter] = await page.$x(categoryFilterXPath);
+          
+          if (categoryFilter) {
+            await categoryFilter.click();
+            await randomDelay(1000, 2000);
+            
+            // For each category, try to find and click the corresponding checkbox
+            for (const category of filters.categories) {
+              const categoryXPath = `//span[contains(text(), '${category}')]`;
+              try {
+                const [categoryElement] = await page.$x(categoryXPath);
+                if (categoryElement) {
+                  await categoryElement.click();
+                  await logFn(`Selected category: ${category}`, 'Filter', 'Success');
+                }
+              } catch (categoryError) {
+                await logFn(`Could not select category ${category}`, 'Filter', 'Warning');
+              }
+              
+              await randomDelay(500, 1000);
+            }
+            
+            // Apply categories
+            const [applyButton] = await page.$x(applyButtonXPath);
+            if (applyButton) {
+              await applyButton.click();
+              await logFn('Applied category filters', 'Filter', 'Success');
+            }
+          } else {
+            await logFn('Could not find category filter', 'Filter', 'Warning');
+          }
+        }
+      } catch (error) {
+        await logFn(`Error setting categories: ${(error as Error).message}`, 'Filter', 'Error');
       }
     }
     
-    // Wait for creators to load
-    await page.waitForFunction(() => {
-      const elements = document.querySelectorAll('tr, div[role="row"]');
-      return elements.length > 2; // Assuming header row
-    }, { timeout: 30000 });
+    await randomDelay(3000, 5000);
+    
+    // Wait for creators to load in the table
+    try {
+      const creatorTableXPath = "//table//tbody/tr";
+      await page.waitForXPath(creatorTableXPath, { timeout: 20000 });
+      await logFn('Creator listing loaded successfully', 'Filter', 'Success');
+    } catch (error) {
+      await logFn(`Waiting for creator table timed out: ${(error as Error).message}`, 'Filter', 'Warning');
+    }
     
     await randomDelay(2000, 3000);
     
