@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useLocation } from 'wouter';
 import { 
   Card,
@@ -11,22 +11,73 @@ import {
   Label,
   Alert,
   AlertTitle,
-  AlertDescription
+  AlertDescription,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter
 } from '@/components/ui';
 import { useMutation } from '@tanstack/react-query';
+import { RefreshCw, X } from 'lucide-react';
 
-// Mock login function - in a real app, this would be replaced with a real API call
+// Enum for authentication steps
+enum AuthStep {
+  CREDENTIALS,
+  CAPTCHA,
+  VERIFICATION,
+  COMPLETE
+}
+
+// Mock login function - in a real app, this would connect to the TikTok API
 const performLogin = async (credentials: { email: string; password: string }) => {
   // Simulating API call
+  return new Promise<{ success: boolean, requiresCaptcha: boolean, message?: string }>((resolve) => {
+    setTimeout(() => {
+      // Check for our hardcoded credentials and simulate captcha requirement
+      if (credentials.email === 'rehman.shoj2@gmail.com' && credentials.password === 'Rehm@n998088') {
+        resolve({ success: true, requiresCaptcha: true });
+      } else {
+        resolve({ 
+          success: false, 
+          requiresCaptcha: false,
+          message: 'Invalid credentials. Please try again.'
+        });
+      }
+    }, 1000);
+  });
+};
+
+// Mock captcha verification function
+const verifyCaptcha = async (captchaToken: string) => {
+  return new Promise<{ success: boolean, requiresVerification: boolean, message?: string }>((resolve) => {
+    setTimeout(() => {
+      // Simulate requiring verification code after captcha
+      if (captchaToken) {
+        resolve({ success: true, requiresVerification: true });
+      } else {
+        resolve({ 
+          success: false, 
+          requiresVerification: false,
+          message: 'Captcha verification failed.'
+        });
+      }
+    }, 1000);
+  });
+};
+
+// Mock verification code validation
+const submitVerificationCode = async (code: string) => {
   return new Promise<{ success: boolean, message?: string }>((resolve) => {
     setTimeout(() => {
-      // Check for our hardcoded credentials
-      if (credentials.email === 'rehman.shoj2@gmail.com' && credentials.password === 'Rehm@n998088') {
+      // Any code will work for this mock
+      if (code && code.length >= 4) {
         resolve({ success: true });
       } else {
         resolve({ 
           success: false, 
-          message: 'Invalid credentials. Please try again.'
+          message: 'Invalid verification code. Please try again.'
         });
       }
     }, 1000);
@@ -37,17 +88,38 @@ const Login = () => {
   const [, setLocation] = useLocation();
   const [email, setEmail] = useState('rehman.shoj2@gmail.com');
   const [password, setPassword] = useState('Rehm@n998088');
+  const [verificationCode, setVerificationCode] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [currentStep, setCurrentStep] = useState<AuthStep>(AuthStep.CREDENTIALS);
+  const [captchaToken, setCaptchaToken] = useState<string>('');
+  const captchaRef = useRef<HTMLDivElement>(null);
+  
+  // Simulate captcha image refreshing
+  const refreshCaptcha = () => {
+    // In a real app, this would request a new captcha image
+    setTimeout(() => {
+      setCaptchaToken('');
+    }, 500);
+  };
+  
+  // Mock captcha solving (simulate clicking on the correct shape)
+  const handleCaptchaClick = () => {
+    // Simulate successful captcha solution
+    setCaptchaToken('captcha_token_123456');
+  };
 
+  // Handle initial login (credentials)
   const loginMutation = useMutation({
     mutationFn: performLogin,
     onSuccess: (data) => {
       if (data.success) {
-        // Navigate to dashboard on successful login
-        setLocation('/');
-        
-        // In a real application, you would also store the authentication token
-        localStorage.setItem('isLoggedIn', 'true');
+        // If captcha is required, move to captcha step
+        if (data.requiresCaptcha) {
+          setCurrentStep(AuthStep.CAPTCHA);
+        } else {
+          // If no captcha, go straight to dashboard
+          completeLogin();
+        }
       } else {
         setError(data.message || 'Login failed. Please try again.');
       }
@@ -56,7 +128,55 @@ const Login = () => {
       setError('An unexpected error occurred. Please try again.');
     }
   });
+  
+  // Handle captcha verification
+  const captchaMutation = useMutation({
+    mutationFn: () => verifyCaptcha(captchaToken),
+    onSuccess: (data) => {
+      if (data.success) {
+        // If verification code is required, move to that step
+        if (data.requiresVerification) {
+          setCurrentStep(AuthStep.VERIFICATION);
+        } else {
+          // If no verification needed, complete login
+          completeLogin();
+        }
+      } else {
+        setError(data.message || 'Captcha verification failed. Please try again.');
+        setCaptchaToken('');
+      }
+    },
+    onError: () => {
+      setError('An unexpected error occurred during captcha verification.');
+      setCaptchaToken('');
+    }
+  });
+  
+  // Handle verification code submission
+  const verificationMutation = useMutation({
+    mutationFn: (code: string) => submitVerificationCode(code),
+    onSuccess: (data) => {
+      if (data.success) {
+        completeLogin();
+      } else {
+        setError(data.message || 'Verification failed. Please try again.');
+        setVerificationCode('');
+      }
+    },
+    onError: () => {
+      setError('An unexpected error occurred during verification.');
+      setVerificationCode('');
+    }
+  });
+  
+  // Complete login process
+  const completeLogin = () => {
+    setCurrentStep(AuthStep.COMPLETE);
+    localStorage.setItem('isLoggedIn', 'true');
+    setLocation('/');
+  };
 
+  // Initial login form submission
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -67,6 +187,213 @@ const Login = () => {
     }
     
     loginMutation.mutate({ email, password });
+  };
+  
+  // Handle captcha submission
+  const handleCaptchaSubmit = () => {
+    if (!captchaToken) {
+      setError('Please solve the captcha puzzle first.');
+      return;
+    }
+    
+    captchaMutation.mutate();
+  };
+  
+  // Handle verification code submission
+  const handleVerificationSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!verificationCode.trim()) {
+      setError('Please enter the verification code.');
+      return;
+    }
+    
+    verificationMutation.mutate(verificationCode);
+  };
+  
+  // Render different content based on current authentication step
+  const renderStepContent = () => {
+    switch (currentStep) {
+      case AuthStep.CREDENTIALS:
+        return (
+          <form onSubmit={handleSubmit}>
+            <CardContent className="space-y-4">
+              {error && (
+                <Alert variant="destructive">
+                  <AlertTitle>Error</AlertTitle>
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
+              
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="Enter your email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="password">Password</Label>
+                  <a href="#" className="text-xs text-tiktok-teal hover:underline">
+                    Forgot password?
+                  </a>
+                </div>
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+              </div>
+            </CardContent>
+            
+            <CardFooter>
+              <Button 
+                type="submit" 
+                className="w-full bg-tiktok-teal hover:bg-tiktok-teal/90 text-white"
+                disabled={loginMutation.isPending}
+              >
+                {loginMutation.isPending ? 'Signing in...' : 'Sign In'}
+              </Button>
+            </CardFooter>
+          </form>
+        );
+        
+      case AuthStep.CAPTCHA:
+        return (
+          <div className="p-6">
+            <div className="mb-4 text-center">
+              <h3 className="text-lg font-medium">Security Check</h3>
+              <p className="text-sm text-gray-500">Please solve the captcha to continue</p>
+            </div>
+            
+            {error && (
+              <Alert variant="destructive" className="mb-4">
+                <AlertTitle>Error</AlertTitle>
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+            
+            <div 
+              ref={captchaRef}
+              className="relative border border-gray-200 rounded-md p-4 mb-4 h-48 flex items-center justify-center bg-gray-50"
+            >
+              <div className="text-center">
+                <p className="text-sm mb-2">Click on the matching shape to verify</p>
+                <div className="flex gap-4 mt-4">
+                  <div 
+                    className="w-16 h-16 border border-gray-300 rounded cursor-pointer hover:bg-gray-100 flex items-center justify-center"
+                    onClick={handleCaptchaClick}
+                  >
+                    {captchaToken ? 
+                      <div className="w-4 h-4 bg-green-500 rounded-full"></div> :
+                      <div className="w-8 h-8 bg-gray-300 rounded-full"></div>
+                    }
+                  </div>
+                  <div 
+                    className="w-16 h-16 border border-gray-300 rounded cursor-pointer hover:bg-gray-100 flex items-center justify-center"
+                  >
+                    <div className="w-8 h-8 bg-gray-300"></div>
+                  </div>
+                  <div 
+                    className="w-16 h-16 border border-gray-300 rounded cursor-pointer hover:bg-gray-100 flex items-center justify-center"
+                  >
+                    <div className="w-8 h-8 bg-gray-300" style={{ clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)' }}></div>
+                  </div>
+                </div>
+              </div>
+              <button 
+                type="button"
+                className="absolute top-2 right-2 p-1 rounded-full hover:bg-gray-200"
+                onClick={refreshCaptcha}
+              >
+                <RefreshCw className="h-4 w-4 text-gray-500" />
+              </button>
+            </div>
+            
+            <div className="flex justify-between">
+              <Button 
+                variant="outline"
+                onClick={() => setCurrentStep(AuthStep.CREDENTIALS)}
+                disabled={captchaMutation.isPending}
+              >
+                Back
+              </Button>
+              <Button
+                onClick={handleCaptchaSubmit}
+                disabled={!captchaToken || captchaMutation.isPending}
+                className="bg-tiktok-teal hover:bg-tiktok-teal/90 text-white"
+              >
+                {captchaMutation.isPending ? 'Verifying...' : 'Confirm'}
+              </Button>
+            </div>
+          </div>
+        );
+        
+      case AuthStep.VERIFICATION:
+        return (
+          <form onSubmit={handleVerificationSubmit}>
+            <CardContent className="space-y-4">
+              {error && (
+                <Alert variant="destructive">
+                  <AlertTitle>Error</AlertTitle>
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
+              
+              <div className="text-center mb-2">
+                <h3 className="text-lg font-medium">Verification Required</h3>
+                <p className="text-sm text-gray-500 mt-1">
+                  A verification code has been sent to your email address. Please enter it below.
+                </p>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="verification-code">Verification Code</Label>
+                <Input
+                  id="verification-code"
+                  type="text"
+                  placeholder="Enter verification code"
+                  value={verificationCode}
+                  onChange={(e) => setVerificationCode(e.target.value)}
+                  className="text-center text-lg tracking-widest"
+                  maxLength={6}
+                  required
+                />
+              </div>
+            </CardContent>
+            
+            <CardFooter className="flex justify-between">
+              <Button 
+                type="button"
+                variant="outline"
+                onClick={() => setCurrentStep(AuthStep.CAPTCHA)}
+                disabled={verificationMutation.isPending}
+              >
+                Back
+              </Button>
+              <Button 
+                type="submit" 
+                className="bg-tiktok-teal hover:bg-tiktok-teal/90 text-white"
+                disabled={!verificationCode.trim() || verificationMutation.isPending}
+              >
+                {verificationMutation.isPending ? 'Verifying...' : 'Verify'}
+              </Button>
+            </CardFooter>
+          </form>
+        );
+        
+      default:
+        return null;
+    }
   };
 
   return (
@@ -83,55 +410,8 @@ const Login = () => {
             Sign in to access your affiliate automation dashboard
           </p>
         </CardHeader>
-        <form onSubmit={handleSubmit}>
-          <CardContent className="space-y-4">
-            {error && (
-              <Alert variant="destructive">
-                <AlertTitle>Error</AlertTitle>
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
-            
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="Enter your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="password">Password</Label>
-                <a href="#" className="text-xs text-tiktok-teal hover:underline">
-                  Forgot password?
-                </a>
-              </div>
-              <Input
-                id="password"
-                type="password"
-                placeholder="Enter your password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
-          </CardContent>
-          
-          <CardFooter>
-            <Button 
-              type="submit" 
-              className="w-full bg-tiktok-teal hover:bg-tiktok-teal/90 text-white"
-              disabled={loginMutation.isPending}
-            >
-              {loginMutation.isPending ? 'Signing in...' : 'Sign In'}
-            </Button>
-          </CardFooter>
-        </form>
+        
+        {renderStepContent()}
       </Card>
     </div>
   );
