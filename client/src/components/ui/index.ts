@@ -34,24 +34,25 @@ export { ScrollArea, ScrollBar } from "./scroll-area";
 export { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectSeparator, SelectTrigger, SelectValue } from "./select";
 export { Separator } from "./separator";
 export { Sheet, SheetClose, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from "./sheet";
-export { 
-  Sidebar,
-  SidebarProvider,
-  SidebarTrigger,
-  SidebarRail,
-  SidebarInset,
-  SidebarInput,
-  SidebarHeader,
-  SidebarFooter,
-  SidebarSeparator,
-  SidebarContent,
-  SidebarGroup,
-  SidebarGroupLabel,
-  SidebarGroupAction,
-  SidebarGroupContent,
-  SidebarMenu,
-  SidebarMenuItem
-} from "./sidebar";
+// Temporarily removing sidebar exports to fix conflicts
+// export { 
+//   Sidebar,
+//   SidebarProvider,
+//   SidebarTrigger,
+//   SidebarRail,
+//   SidebarInset,
+//   SidebarInput,
+//   SidebarHeader,
+//   SidebarFooter,
+//   SidebarSeparator,
+//   SidebarContent,
+//   SidebarGroup,
+//   SidebarGroupLabel,
+//   SidebarGroupAction,
+//   SidebarGroupContent,
+//   SidebarMenu,
+//   SidebarMenuItem
+// } from "./sidebar";
 export { Skeleton } from "./skeleton";
 export { Slider } from "./slider";
 export { Switch } from "./switch";
