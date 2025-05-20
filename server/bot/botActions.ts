@@ -13,48 +13,236 @@ export async function login(
   try {
     await logFn('Navigating to TikTok Shop login page...', 'Login', 'Pending');
     
-    // Navigate to login page
-    await page.goto('https://seller-us.tiktok.com/account/login', { waitUntil: 'networkidle2' });
+    // Navigate to original TikTok login page
+    await page.goto('https://seller-uk-accounts.tiktok.com/account/login', { waitUntil: 'networkidle2' });
+    
+    await randomDelay(2000, 3000);
+    
+    await logFn('Login page loaded, selecting email login method...', 'Login', 'Pending');
+    
+    // Click on email login tab if needed
+    try {
+      // Look for the email login button using the selector you provided
+      const emailLoginSelector = '#TikTok_Ads_SSO_Login_Email_Panel_Button';
+      const emailLoginXPath = '/html/body/div[1]/section/section/div/div[3]/div/div[1]/section/div[1]/div[4]/div[2]/span[2]';
+      
+      // First try CSS selector
+      let emailTabClicked = false;
+      try {
+        await page.waitForSelector(emailLoginSelector, { timeout: 5000 });
+        await page.click(emailLoginSelector);
+        emailTabClicked = true;
+      } catch (selectorError) {
+        // Try XPath if CSS selector fails
+        try {
+          await page.waitForXPath(emailLoginXPath, { timeout: 5000 });
+          const [emailLoginButton] = await page.$x(emailLoginXPath);
+          if (emailLoginButton) {
+            await emailLoginButton.click();
+            emailTabClicked = true;
+          }
+        } catch (xpathError) {
+          // If both methods fail, try a more general approach
+          const emailTextXPath = "//span[contains(text(), 'Email') or contains(text(), 'email')]";
+          try {
+            const [emailText] = await page.$x(emailTextXPath);
+            if (emailText) {
+              await emailText.click();
+              emailTabClicked = true;
+            }
+          } catch (generalError) {
+            await logFn('Could not find email login tab, will try direct email input', 'Login', 'Warning');
+          }
+        }
+      }
+      
+      if (emailTabClicked) {
+        await logFn('Switched to email login method', 'Login', 'Success');
+        await randomDelay(1000, 2000);
+      }
+    } catch (tabError) {
+      await logFn(`Email tab error: ${tabError.message}. Will try direct input.`, 'Login', 'Warning');
+    }
+    
+    await logFn('Entering login credentials...', 'Login', 'Pending');
+    
+    // Try different selectors for email input based on TikTok's UI
+    try {
+      const emailInputSelectors = [
+        'input[name="email"]',
+        'input[id="TikTok_Ads_SSO_Login_Email_Input"]',
+        'input[type="email"]',
+        'input[placeholder*="email" i]',
+        'input.tiktokads-common-login-form-email'
+      ];
+      
+      let emailInputFound = false;
+      for (const selector of emailInputSelectors) {
+        try {
+          await page.waitForSelector(selector, { timeout: 2000 });
+          await page.type(selector, email, { delay: 30 });
+          emailInputFound = true;
+          break;
+        } catch (error) {
+          // Try next selector
+        }
+      }
+      
+      if (!emailInputFound) {
+        // Try XPath as a fallback
+        const emailXPath = "//input[contains(@placeholder, 'email') or contains(@placeholder, 'Email')]";
+        await page.waitForXPath(emailXPath, { timeout: 5000 });
+        const [emailInput] = await page.$x(emailXPath);
+        if (emailInput) {
+          await emailInput.type(email, { delay: 30 });
+          emailInputFound = true;
+        }
+      }
+      
+      if (!emailInputFound) {
+        throw new Error('Could not find email input field');
+      }
+    } catch (emailError) {
+      await logFn(`Email input error: ${emailError.message}`, 'Login', 'Error');
+      throw emailError;
+    }
     
     await randomDelay(1000, 2000);
     
-    await logFn('Login page loaded, entering credentials...', 'Login', 'Pending');
-    
-    // Enter email
-    await page.type('input[name="email"]', email, { delay: 30 });
-    
-    await randomDelay(500, 1000);
-    
-    // Enter password
-    await page.type('input[type="password"]', password, { delay: 30 });
-    
-    await randomDelay(500, 1000);
-    
-    // Check "Remember me" checkbox if it exists
-    const rememberMeCheckbox = await page.$('input[type="checkbox"]');
-    if (rememberMeCheckbox) {
-      await rememberMeCheckbox.click();
+    // Try different selectors for password input
+    try {
+      const passwordInputSelectors = [
+        'input[type="password"]',
+        'input[placeholder*="password" i]',
+        'input.tiktokads-common-login-form-password'
+      ];
+      
+      let passwordInputFound = false;
+      for (const selector of passwordInputSelectors) {
+        try {
+          await page.waitForSelector(selector, { timeout: 2000 });
+          await page.type(selector, password, { delay: 30 });
+          passwordInputFound = true;
+          break;
+        } catch (error) {
+          // Try next selector
+        }
+      }
+      
+      if (!passwordInputFound) {
+        // Try XPath as a fallback
+        const passwordXPath = "//input[@type='password']";
+        await page.waitForXPath(passwordXPath, { timeout: 5000 });
+        const [passwordInput] = await page.$x(passwordXPath);
+        if (passwordInput) {
+          await passwordInput.type(password, { delay: 30 });
+          passwordInputFound = true;
+        }
+      }
+      
+      if (!passwordInputFound) {
+        throw new Error('Could not find password input field');
+      }
+    } catch (passwordError) {
+      await logFn(`Password input error: ${passwordError.message}`, 'Login', 'Error');
+      throw passwordError;
     }
     
-    await randomDelay(500, 1000);
+    await randomDelay(1000, 2000);
     
-    // Click login button
-    await Promise.all([
-      page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 60000 }),
-      page.click('button[type="submit"]')
-    ]);
+    // Check "Remember me" checkbox if it exists
+    try {
+      const rememberMeCheckbox = await page.$('input[type="checkbox"]');
+      if (rememberMeCheckbox) {
+        await rememberMeCheckbox.click();
+      }
+    } catch (checkboxError) {
+      // Not critical if checkbox can't be found
+    }
+    
+    await randomDelay(1000, 2000);
+    
+    // Click login button using multiple strategies
+    try {
+      // Try various button selectors
+      const loginButtonSelectors = [
+        'button[type="submit"]',
+        'button.tiktokads-common-login-form-button',
+        'button:contains("Log in")',
+        'button:contains("Sign in")',
+        'button.login-button'
+      ];
+      
+      let loginButtonClicked = false;
+      for (const selector of loginButtonSelectors) {
+        try {
+          await page.waitForSelector(selector, { timeout: 2000 });
+          await Promise.all([
+            page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 60000 }).catch(() => {}),
+            page.click(selector)
+          ]);
+          loginButtonClicked = true;
+          break;
+        } catch (error) {
+          // Try next selector
+        }
+      }
+      
+      if (!loginButtonClicked) {
+        // Try XPath as a fallback
+        const loginXPath = "//button[contains(text(), 'Log in') or contains(text(), 'Sign in') or contains(text(), 'Login')]";
+        const [loginButton] = await page.$x(loginXPath);
+        if (loginButton) {
+          await Promise.all([
+            page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 60000 }).catch(() => {}),
+            loginButton.click()
+          ]);
+          loginButtonClicked = true;
+        }
+      }
+      
+      if (!loginButtonClicked) {
+        throw new Error('Could not find login button');
+      }
+    } catch (buttonError) {
+      await logFn(`Login button error: ${buttonError.message}`, 'Login', 'Error');
+      throw buttonError;
+    }
+    
+    await randomDelay(5000, 8000);
     
     // Check if we're logged in
     const isLoggedIn = await page.evaluate(() => {
-      return !document.querySelector('input[name="email"]');
+      // Check for typical elements that indicate successful login
+      const dashboardIndicators = [
+        document.querySelector('div.dashboard'),
+        document.querySelector('a[href*="dashboard"]'),
+        document.querySelector('div.user-menu'),
+        document.querySelector('div.user-profile'),
+        document.querySelector('a[href*="logout"]'),
+        document.querySelector('button:contains("Log out")'),
+        // Check that we're not still on login page
+        !document.querySelector('input[type="password"]'),
+        !document.querySelector('button[type="submit"]')
+      ];
+      
+      return dashboardIndicators.some(indicator => !!indicator);
     });
     
     if (isLoggedIn) {
       await logFn('Login successful', 'Login', 'Success');
       return true;
     } else {
-      await logFn('Login failed', 'Login', 'Error');
-      return false;
+      // Check for captcha or verification before declaring login failure
+      const requiresVerification = await checkVerificationRequired(page);
+      if (requiresVerification) {
+        await logFn('Login requires verification or captcha', 'Login', 'Pending');
+        // Return false but don't consider it a complete failure
+        return false;
+      } else {
+        await logFn('Login failed', 'Login', 'Error');
+        return false;
+      }
     }
   } catch (error) {
     await logFn(`Login error: ${(error as Error).message}`, 'Login', 'Error', { error: (error as Error).message });
