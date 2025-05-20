@@ -505,59 +505,135 @@ export async function inviteCreators(
       await logFn(`Attempting to invite creator: ${creator.username}`, 'Invite', 'Pending');
       
       try {
-        // Find and click invite button for this creator
-        const inviteSuccess = await page.evaluate((creatorUsername) => {
-          const rows = Array.from(document.querySelectorAll('tr, div[role="row"]')).slice(1); // Skip header
-          
-          for (const row of rows) {
-            const usernameCell = row.querySelector('td, div[role="cell"]');
-            if (usernameCell && usernameCell.textContent?.includes(creatorUsername)) {
-              // Found the row for this creator
-              const inviteButton = row.querySelector('button');
-              if (inviteButton && inviteButton.textContent?.includes('Invite')) {
-                inviteButton.click();
-                return true;
+        // Locate and click the "Invite" button for this creator
+        const inviteButtonXPath = `//tbody/tr[contains(., '${creator.username}')]//button[contains(., 'Invite')]`;
+        const firstRowInviteButtonXPath = `/html/body/div[2]/div/div[2]/main/div/div/div/div/div[5]/div/div/div/div[2]/div[2]/div/div/div/div/div/div[2]/table/tbody/tr[1]/td[7]/div/span/div/span/div/button`;
+        
+        let inviteButtonClicked = false;
+        try {
+          // First try with specific username
+          await page.waitForXPath(inviteButtonXPath, { timeout: 5000 });
+          const [inviteButton] = await page.$x(inviteButtonXPath);
+          if (inviteButton) {
+            await inviteButton.click();
+            inviteButtonClicked = true;
+          }
+        } catch (error) {
+          // If specific button fails, try the first row button (from your XPath)
+          try {
+            await page.waitForXPath(firstRowInviteButtonXPath, { timeout: 5000 });
+            const [firstRowButton] = await page.$x(firstRowInviteButtonXPath);
+            if (firstRowButton) {
+              await firstRowButton.click();
+              inviteButtonClicked = true;
+            }
+          } catch (firstRowError) {
+            // If both approaches fail, try generic button selector
+            const genericInviteXPath = `//button[contains(., 'Invite')]`;
+            try {
+              const [genericButton] = await page.$x(genericInviteXPath);
+              if (genericButton) {
+                await genericButton.click();
+                inviteButtonClicked = true;
               }
+            } catch (genericError) {
+              throw new Error(`Could not find any invite button: ${genericError.message}`);
             }
           }
-          
-          return false;
-        }, creator.username);
+        }
         
-        if (inviteSuccess) {
-          await randomDelay(actionDelay * 0.5, actionDelay * 1.5);
+        if (!inviteButtonClicked) {
+          skipped++;
+          await logFn(`Could not find invite button for creator: ${creator.username}`, 'Invite', 'Warning', { creator });
+          continue;
+        }
+        
+        await randomDelay(2000, 3000);
+        
+        // Fill in the invitation form with the message
+        try {
+          // Default message based on your requirements (power bank promotion)
+          const defaultMessage = `Hi there!
+We'd love for you to promote our top-selling power bank. It went viral on our main account @digi4u and it has been super popular since then- you probably already came across it! 
+This is a fantastic opportunity to get more exposure with the new link from our fresh account as it isn't saturated yet. Additionally, you'll earn a 10% commission on every sale. Please free to request a free sample!`;
           
-          // Confirm any prompts if needed
-          const confirmPrompt = await page.evaluate(() => {
-            const confirmButton = Array.from(document.querySelectorAll('button')).find(
-              button => button.textContent?.includes('Confirm') || button.textContent?.includes('OK')
-            );
-            
-            if (confirmButton) {
-              confirmButton.click();
-              return true;
+          // Find the message textarea
+          const textareaXPath = `//textarea`;
+          await page.waitForXPath(textareaXPath, { timeout: 5000 });
+          const [textarea] = await page.$x(textareaXPath);
+          
+          if (textarea) {
+            // Clear existing text and type our message
+            await textarea.click({ clickCount: 3 }); // Select all text
+            await textarea.type(defaultMessage);
+            await logFn(`Filled invitation message for ${creator.username}`, 'Invite', 'Success');
+          }
+        } catch (messageError) {
+          await logFn(`Warning: Could not fill message: ${messageError.message}`, 'Invite', 'Warning');
+          // Continue anyway as this might not be critical
+        }
+        
+        await randomDelay(1000, 2000);
+        
+        // Select commission options if needed
+        try {
+          const radioButtonXPath = `//label[contains(@class, 'arco-radio')]`;
+          const [radioButton] = await page.$x(radioButtonXPath);
+          if (radioButton) {
+            await radioButton.click();
+            await logFn(`Selected commission option`, 'Invite', 'Success');
+          }
+        } catch (radioError) {
+          // Not critical if this fails
+        }
+        
+        await randomDelay(1000, 2000);
+        
+        // Click the final "Create Invitation" button
+        const createInvitationXPath = `/html/body/div[18]/div[2]/div/div[2]/div[2]`;
+        const genericCreateXPath = `//button[contains(., 'Create') or contains(., 'Send') or contains(., 'Invite') or contains(., 'Confirm')]`;
+        
+        let invitationCreated = false;
+        try {
+          // First try with specific XPath
+          const [createButton] = await page.$x(createInvitationXPath);
+          if (createButton) {
+            await createButton.click();
+            invitationCreated = true;
+          } 
+        } catch (error) {
+          // Try generic button
+          try {
+            const [genericButton] = await page.$x(genericCreateXPath);
+            if (genericButton) {
+              await genericButton.click();
+              invitationCreated = true;
             }
-            
-            return false;
-          });
-          
+          } catch (genericError) {
+            throw new Error(`Could not find create invitation button: ${genericError.message}`);
+          }
+        }
+        
+        if (invitationCreated) {
           invited++;
           creator.invited = true;
           
-          await logFn(
-            `Successfully invited creator: ${creator.username}${confirmPrompt ? ' (confirmation dialog accepted)' : ''}`, 
-            'Invite', 
-            'Success', 
-            { creator }
-          );
+          await logFn(`Successfully invited creator: ${creator.username}`, 'Invite', 'Success', { creator });
+          
+          // Handle any confirmation dialogs
+          await randomDelay(1000, 2000);
+          try {
+            const confirmButtonXPath = `//button[contains(., 'OK') or contains(., 'Confirm') or contains(., 'Got it')]`;
+            const [confirmButton] = await page.$x(confirmButtonXPath);
+            if (confirmButton) {
+              await confirmButton.click();
+            }
+          } catch (confirmError) {
+            // Not critical if no confirmation dialog
+          }
         } else {
-          skipped++;
-          await logFn(
-            `Could not find invite button for creator: ${creator.username}`, 
-            'Invite', 
-            'Warning', 
-            { creator }
-          );
+          failed++;
+          await logFn(`Failed to create invitation for creator: ${creator.username}`, 'Invite', 'Error', { creator });
         }
       } catch (error) {
         failed++;
