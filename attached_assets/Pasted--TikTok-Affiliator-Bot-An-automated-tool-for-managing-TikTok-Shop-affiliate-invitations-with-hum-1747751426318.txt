@@ -1,0 +1,154 @@
+# TikTok Affiliator Bot
+
+An automated tool for managing TikTok Shop affiliate invitations with human-like behavior.
+
+## Overview
+
+This bot automates the process of sending affiliate program invitations to TikTok creators. It uses advanced browser automation with human-like behavior patterns to avoid detection while managing your TikTok Shop affiliate program.
+
+## Features
+
+- **Human-like Behavior**: Random delays, natural mouse movements, and variable scrolling to mimic human interaction
+- **Session Management**: Save and load sessions to avoid repeated logins
+- **Automatic Invitation**: Create and manage multiple affiliate invitation links
+- **Creator Filtering**: Filter potential affiliates by follower count, engagement rate, and other metrics
+- **Anti-Detection**: Uses undetected ChromeDriver to bypass TikTok's bot detection mechanisms
+- **Configurable Settings**: Easily adjust behavior parameters and thresholds via config file
+
+## Requirements
+
+- Python 3.8+
+- Chrome browser installed
+- Stable internet connection
+- TikTok Seller account with Shop enabled
+
+## Installation
+
+1. Clone the repository or download the source code
+
+2. Create a virtual environment:
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
+
+3. Install the required packages:
+```bash
+pip install -r requirements.txt
+```
+
+## Configuration
+
+1. Create a `credentials.json` file with your TikTok Shop seller account credentials:
+```json
+{
+    "email": "your_email@example.com",
+    "password": "your_password"
+}
+```
+
+2. Optional: Modify the default configuration in `tiktok_bot_config.json` to adjust the bot's behavior
+
+## Usage
+
+### Basic Usage
+
+```python
+from tiktok_bot import TikTokAffiliatorBot
+
+# Initialize the bot
+bot = TikTokAffiliatorBot(email="your_email@example.com", password="your_password")
+
+# Start the browser
+bot.start_browser()
+
+# Login to TikTok Seller Center
+bot.login()
+
+# Navigate to affiliate program section
+bot.navigate_to_affiliate_program()
+
+# Create invitation links
+links = bot.create_invitation_links(base_name="Spring2025Campaign", count=5)
+
+# Search for potential creators based on criteria
+creators = bot.search_creators(min_followers=5000, max_followers=50000)
+
+# Send invitations to creators
+bot.send_invitations_to_creators(creators, max_invites=20)
+
+# Close the browser when done
+bot.close()
+```
+
+### Running as a Script
+
+You can also run the bot directly from the command line:
+
+```bash
+python run_tiktok_bot.py --email your_email@example.com --password your_password --create-links 5 --base-name SpringCampaign --max-invites 20
+```
+
+## Safety and Ethical Use
+
+- Use this tool responsibly and in accordance with TikTok's Terms of Service
+- Do not use excessively to avoid account restrictions
+- Set reasonable delays between operations to mimic human behavior
+- This tool is for educational purposes and should be used ethically
+
+## Error Handling
+
+The bot includes comprehensive error handling and logging. Check the `tiktok_bot.log` file for detailed information if you encounter issues.
+
+## Advanced Configuration
+
+The `tiktok_bot_config.json` file contains various settings that control the bot's behavior:
+
+```json
+{
+    "human_typing_speed": {
+        "min_delay": 0.05,
+        "max_delay": 0.15
+    },
+    "human_behavior": {
+        "scroll_variance": 0.2,
+        "wait_multiplier": {
+            "min": 0.8,
+            "max": 1.5
+        },
+        "mouse_movement_jitter": 5
+    },
+    "retry_attempts": 3,
+    "page_load_timeout": 30,
+    "follow_count_ranges": [
+        {"min": 0, "max": 1000},
+        {"min": 1000, "max": 5000},
+        {"min": 5000, "max": 10000},
+        {"min": 10000, "max": 50000},
+        {"min": 50000, "max": 100000},
+        {"min": 100000, "max": 500000},
+        {"min": 500000, "max": 1000000}
+    ],
+    "max_gmv_threshold": 10000,
+    "commission_rate": 10
+}
+```
+
+## Troubleshooting
+
+- **Login Issues**: Check your credentials and ensure 2FA is properly configured
+- **Navigation Problems**: The TikTok seller interface may change; report issues for updates
+- **Bot Detection**: Increase human behavior randomness in config if detected
+- **Slow Performance**: Adjust page timeout settings or check your internet connection
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Disclaimer
+
+This tool is provided for educational purposes only. Use at your own risk. The developers are not responsible for any consequences resulting from the use of this tool.
