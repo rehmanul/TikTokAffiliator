@@ -5,6 +5,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
   DialogFooter,
   Button,
   Input
@@ -43,6 +44,9 @@ const VerificationModal = ({ isOpen, onClose, onSubmit }: VerificationModalProps
       <DialogContent className="bg-white rounded-lg shadow-xl max-w-md w-full p-6 mx-4">
         <DialogHeader className="flex justify-between items-center mb-4">
           <DialogTitle className="text-lg font-medium text-gray-900">Verification Required</DialogTitle>
+          <DialogDescription className="sr-only">
+            Enter your verification code to continue using the TikTok Bot Affiliator
+          </DialogDescription>
           <Button 
             variant="ghost" 
             size="icon" 
