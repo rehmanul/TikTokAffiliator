@@ -41,8 +41,8 @@ cd ..
 NODE_ENV=development
 PORT=3000
 CORS_ORIGIN=http://localhost:5173
-TIKTOK_EMAIL=your-email@example.com
-TIKTOK_PASSWORD=your-password
+TIKTOK_EMAIL= rehman.shoj2@gmail.com
+TIKTOK_PASSWORD= Rehm@n998088
 ```
 
 ## Usage
