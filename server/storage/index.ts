@@ -44,7 +44,7 @@ export interface BotStatus {
 export interface IStorage {
   // Session management
   getSessionData(): Promise<SessionData | null>;
-  saveSessionData(data: SessionData): Promise<void>;
+  saveSessionData(data: SessionData | null): Promise<void>;
   
   // Bot configuration
   getBotConfig(): Promise<BotConfig>;

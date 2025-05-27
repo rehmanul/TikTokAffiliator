@@ -78,6 +78,18 @@ class MockStorage implements IStorage {
     }
   }
 
+  async getDailyInviteCount(): Promise<number> {
+    return 0;
+  }
+
+  async incrementDailyInviteCount(): Promise<void> {
+    /* noop */
+  }
+
+  async resetDailyInviteCount(): Promise<void> {
+    /* noop */
+  }
+
   async cleanup(): Promise<void> {
     this.botConfig = null;
     this.botStatus = {

@@ -51,7 +51,7 @@ describe('TikTok Login Flow Tests', () => {
       
       // Should throw an error for invalid credentials
       expect.fail('Should have thrown an error for invalid credentials');
-    } catch (error) {
+    } catch (error: any) {
       expect(error).to.be.an('error');
       expect(error.message).to.include('Login failed');
     }
@@ -70,7 +70,7 @@ describe('TikTok Login Flow Tests', () => {
       });
       
       expect.fail('Should have thrown an error for network failure');
-    } catch (error) {
+    } catch (error: any) {
       expect(error).to.be.an('error');
       expect(error.message).to.include('Login failed');
     } finally {

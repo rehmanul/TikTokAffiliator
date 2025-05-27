@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { describe, it, before, Context } from 'mocha';
-import { TiktokBot } from '../server/bot/tiktokBot';
+import { TikTokBot } from '../server/bot/tiktokBot';
 import type { IStorage } from '../server/storage';
 import { BotConfig, BotStatus, SessionData, Creator, InsertActivityLog } from '../shared/schema';
 import { Browser, Page } from 'puppeteer';
@@ -14,7 +14,7 @@ import {
 describe('TikTok Affiliator Production Tests', () => {
   // Critical Path Tests
   describe('Critical Path', () => {
-    let bot: TiktokBot;
+    let bot: TikTokBot;
     let storage: IStorage;
 
     before(async function(this: Context) {
@@ -37,13 +37,16 @@ describe('TikTok Affiliator Production Tests', () => {
           proxyUrl: undefined,
           logLevel: 'info',
           screenshotOnError: true,
-          maxDailyInvites: 100
+      maxDailyInvites: 100
         }),
         getSessionData: async (): Promise<SessionData | null> => null,
         saveSessionData: async (): Promise<void> => {},
-        updateBotStatus: async (status: Partial<BotStatus>): Promise<void> => {},
-        addActivityLog: async (log: InsertActivityLog): Promise<void> => {},
-        saveCreators: async (creators: Creator[]): Promise<void> => {},
+        updateBotConfig: async (_: Partial<BotConfig>): Promise<void> => {},
+        updateBotStatus: async (_: Partial<BotStatus>): Promise<void> => {},
+        addActivityLog: async (_: InsertActivityLog): Promise<void> => {},
+        saveCreators: async (_: Creator[]): Promise<void> => {},
+        getCreatorByUsername: async (_: string): Promise<Creator | null> => null,
+        updateCreator: async (_: string, __: Partial<Creator>): Promise<void> => {},
         getBotStatus: async (): Promise<BotStatus> => ({
           status: 'initialized',
           lastLoginTime: new Date(),
@@ -56,7 +59,7 @@ describe('TikTok Affiliator Production Tests', () => {
         cleanup: async (): Promise<void> => {}
       };
       
-      bot = new TiktokBot(storage);
+      bot = new TikTokBot(storage);
     });
 
 

@@ -55,7 +55,11 @@ describe('InMemoryStorage', () => {
       minFollowers: 1000,
       maxFollowers: 100000,
       categories: ["Fashion"],
-      invitationLimit: 5
+      invitationLimit: 5,
+      actionDelay: 0,
+      retryAttempts: 0,
+      retryDelay: 0,
+      sessionTimeout: 0
     };
 
     it('should save and retrieve bot configuration', async () => {
@@ -86,7 +90,7 @@ describe('InMemoryStorage', () => {
     it('should update creator', async () => {
       await storage.saveCreators(mockCreators);
       const updatedCreator = { ...mockCreators[0], followers: 6000 };
-      await storage.updateCreator(updatedCreator);
+      await storage.updateCreator(updatedCreator.username, updatedCreator);
       const retrieved = await storage.getCreatorByUsername('creator1');
       expect(retrieved).to.deep.equal(updatedCreator);
     });
@@ -94,7 +98,7 @@ describe('InMemoryStorage', () => {
 
   describe('Activity Logs', () => {
     it('should add and clear logs', async () => {
-      const mockLog = { type: 'test', message: 'test log' };
+      const mockLog = { type: 'test', message: 'test log', timestamp: new Date() };
       await storage.addActivityLog(mockLog);
       await storage.clearLogs();
       // Since we don't have a method to retrieve logs, we can't verify directly
@@ -105,9 +109,31 @@ describe('InMemoryStorage', () => {
   describe('Cleanup', () => {
     it('should reset all data on cleanup', async () => {
       // Set some data
-      await storage.saveSessionData({ some: 'session' });
-      await storage.updateBotConfig({ some: 'config' });
-      await storage.saveCreators([{ username: 'test' }]);
+      const tempSession = {
+        cookies: [],
+        localStorage: {},
+        sessionStorage: {},
+        userAgent: 'agent',
+        viewport: { width: 0, height: 0 },
+        timestamp: Date.now(),
+        createdAt: new Date(),
+        expiresAt: new Date(),
+      };
+      await storage.saveSessionData(tempSession);
+      const tempConfig = {
+        email: 'a',
+        password: 'b',
+        minFollowers: 0,
+        maxFollowers: 0,
+        categories: [],
+        invitationLimit: 0,
+        actionDelay: 0,
+        retryAttempts: 0,
+        retryDelay: 0,
+        sessionTimeout: 0,
+      };
+      await storage.updateBotConfig(tempConfig);
+      await storage.saveCreators([{ username: 'test', followers: 0 }]);
       await storage.incrementDailyInviteCount();
 
       // Cleanup

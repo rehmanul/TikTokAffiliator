@@ -29,6 +29,18 @@ export interface BotConfig {
   maxFollowers: number;
   categories: string[];
   invitationLimit: number;
+  actionDelay: number;
+  retryAttempts: number;
+  retryDelay: number;
+  sessionTimeout: number;
+  maxConcurrentRequests?: number;
+  requestTimeout?: number;
+  maxRequestsPerMinute?: number;
+  userAgent?: string;
+  proxyUrl?: string;
+  logLevel?: string;
+  screenshotOnError?: boolean;
+  maxDailyInvites?: number;
 }
 
 export interface Creator {
@@ -46,12 +58,24 @@ export interface ActivityLog {
   metadata?: Record<string, any>;
 }
 
+// Extended log type used when inserting logs into storage
+export interface InsertActivityLog extends ActivityLog {
+  details?: any;
+}
+
 export interface BotStatus {
   status: 'idle' | 'running' | 'error' | 'initialized' | 'stopped';
   lastError?: string;
   lastActivity?: ActivityLog;
   isRateLimited?: boolean;
   queueLength?: number;
+  lastLoginTime?: Date;
+  invitationsSent?: number;
+  successRate?: number;
+  currentOperation?: string;
+  uptime?: number;
+  memoryUsage?: number;
+  cpuUsage?: number;
 }
 
 export interface StorageConfig {
