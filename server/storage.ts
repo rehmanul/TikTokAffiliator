@@ -1,4 +1,11 @@
-import { BotConfig, BotStatus, SessionData, Creator, InsertActivityLog } from '../shared/schema';
+import {
+  BotConfig,
+  BotStatus,
+  SessionData,
+  Creator,
+  ActivityLog,
+  InsertActivityLog,
+} from '../shared/schema';
 
 export interface IStorage {
   // Bot Configuration
@@ -7,7 +14,7 @@ export interface IStorage {
   
   // Session Management
   getSessionData(): Promise<SessionData | null>;
-  saveSessionData(data: SessionData): Promise<void>;
+  saveSessionData(data: SessionData | null): Promise<void>;
   
   // Bot Status
   getBotStatus(): Promise<BotStatus>;
@@ -32,3 +39,12 @@ export interface IStorage {
 
 // Implementation can be added here or in separate files for different storage backends
 // For example: SQLiteStorage, PostgresStorage, etc.
+
+export type {
+  BotConfig,
+  BotStatus,
+  SessionData,
+  Creator,
+  ActivityLog,
+  InsertActivityLog,
+};

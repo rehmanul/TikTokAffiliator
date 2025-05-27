@@ -43,7 +43,7 @@ export class MemoryStorage implements IStorage {
     return this.sessionData;
   }
 
-  async saveSessionData(data: SessionData): Promise<void> {
+  async saveSessionData(data: SessionData | null): Promise<void> {
     this.sessionData = data;
   }
 

@@ -10,7 +10,11 @@ export class InMemoryStorage implements IStorage {
     minFollowers: 1000,
     maxFollowers: 100000,
     categories: [],
-    invitationLimit: 5
+    invitationLimit: 5,
+    actionDelay: 0,
+    retryAttempts: 0,
+    retryDelay: 0,
+    sessionTimeout: 0
   };
   private botStatus: BotStatus = { status: 'idle' };
   private dailyInviteCount: number = 0;
@@ -21,7 +25,7 @@ export class InMemoryStorage implements IStorage {
     return this.sessionData;
   }
 
-  async saveSessionData(data: SessionData): Promise<void> {
+  async saveSessionData(data: SessionData | null): Promise<void> {
     this.sessionData = data;
   }
 
@@ -29,8 +33,8 @@ export class InMemoryStorage implements IStorage {
     return this.botConfig;
   }
 
-  async updateBotConfig(config: BotConfig): Promise<void> {
-    this.botConfig = config;
+  async updateBotConfig(config: Partial<BotConfig>): Promise<void> {
+    this.botConfig = { ...this.botConfig, ...config };
   }
 
   async getBotStatus(): Promise<BotStatus> {
@@ -60,10 +64,10 @@ export class InMemoryStorage implements IStorage {
     return this.creators.find(c => c.username === username) || null;
   }
 
-  async updateCreator(creator: Creator): Promise<void> {
-    const index = this.creators.findIndex(c => c.username === creator.username);
-    if (index !== -1) {
-      this.creators[index] = creator;
+  async updateCreator(username: string, data: Partial<Creator>): Promise<void> {
+    const creator = await this.getCreatorByUsername(username);
+    if (creator) {
+      Object.assign(creator, data);
     }
   }
 
@@ -94,7 +98,11 @@ export class InMemoryStorage implements IStorage {
       minFollowers: 1000,
       maxFollowers: 100000,
       categories: [],
-      invitationLimit: 5
+      invitationLimit: 5,
+      actionDelay: 0,
+      retryAttempts: 0,
+      retryDelay: 0,
+      sessionTimeout: 0
     };
     this.botStatus = { status: 'idle' };
     this.dailyInviteCount = 0;

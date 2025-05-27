@@ -67,7 +67,11 @@ describe('Bot Integration Tests', () => {
         minFollowers: 1000,
         maxFollowers: 100000,
         categories: ["Fashion"],
-        invitationLimit: 5
+        invitationLimit: 5,
+        actionDelay: 0,
+        retryAttempts: 0,
+        retryDelay: 0,
+        sessionTimeout: 0
       };
       await storage.updateBotConfig(config);
     });

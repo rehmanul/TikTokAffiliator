@@ -301,7 +301,7 @@ export class TikTokBot {
         await applyFilters(this.page!, {
           minFollowers,
           maxFollowers,
-          categories: this.config.categories,
+          categories: this.config!.categories,
         });
       });
 
