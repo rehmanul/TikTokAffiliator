@@ -19,23 +19,27 @@ import {
   SelectTrigger,
   SelectValue,
   Skeleton
-} from '@/components/ui';
-import { BotConfig } from '@/lib/types';
-import { updateBotConfig } from '@/lib/api';
-import { queryClient } from '@/lib/queryClient';
+} from './ui';
+import { BotConfig } from '../lib/types';
+import { updateBotConfig } from '../lib/api';
+import { queryClient } from '../lib/queryClient';
 
 const configSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
-  rememberCredentials: z.boolean().default(true),
   minFollowers: z.number().min(0, 'Minimum followers must be non-negative'),
   maxFollowers: z.number().min(0, 'Maximum followers must be non-negative'),
   categories: z.array(z.string()).min(1, 'Select at least one category'),
   invitationLimit: z.number().min(0, 'Invitation limit must be non-negative'),
-  actionDelay: z.number().min(500, 'Action delay must be at least 500ms'),
+  actionDelay: z.number().min(1000, 'Action delay must be at least 1000ms'),
   retryAttempts: z.number().min(1, 'Retry attempts must be at least 1'),
-  operationMode: z.string(),
-  isActive: z.boolean().default(false)
+  retryDelay: z.number().min(1000, 'Retry delay must be at least 1000ms'),
+  sessionTimeout: z.number().min(5000, 'Session timeout must be at least 5000ms'),
+  logLevel: z.enum(['debug', 'info', 'warn', 'error']).default('info'),
+  screenshotOnError: z.boolean().default(true),
+  maxDailyInvites: z.number().min(0, 'Daily invite limit must be non-negative'),
+  userAgent: z.string().optional(),
+  proxyUrl: z.string().optional()
 });
 
 type ConfigFormValues = z.infer<typeof configSchema>;
@@ -60,17 +64,21 @@ const ConfigSection = ({
   const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<ConfigFormValues>({
     resolver: zodResolver(configSchema),
     defaultValues: {
-      email: botConfig?.email || 'rehman.shoj2@gmail.com',
-      password: botConfig?.password || 'Rehm@n998088',
-      rememberCredentials: botConfig?.rememberCredentials ?? true,
+      email: botConfig?.email || '',
+      password: botConfig?.password || '',
       minFollowers: botConfig?.minFollowers || 1000,
       maxFollowers: botConfig?.maxFollowers || 2000,
       categories: botConfig?.categories || ['Sports & Outdoor', 'Fashion'],
       invitationLimit: botConfig?.invitationLimit || 60,
       actionDelay: botConfig?.actionDelay || 2000,
       retryAttempts: botConfig?.retryAttempts || 3,
-      operationMode: botConfig?.operationMode || 'human-like',
-      isActive: botConfig?.isActive || false
+      retryDelay: botConfig?.retryDelay || 5000,
+      sessionTimeout: botConfig?.sessionTimeout || 3600000,
+      logLevel: botConfig?.logLevel || 'info',
+      screenshotOnError: botConfig?.screenshotOnError ?? true,
+      maxDailyInvites: botConfig?.maxDailyInvites || 100,
+      userAgent: botConfig?.userAgent,
+      proxyUrl: botConfig?.proxyUrl
     }
   });
 
@@ -114,7 +122,7 @@ const ConfigSection = ({
   ];
 
   return (
-    <Card className="mb-6">
+    <Card>
       <CardHeader className="px-6 py-4 border-b border-gray-200">
         <CardTitle className="text-lg font-medium text-gray-800">Bot Configuration</CardTitle>
       </CardHeader>
@@ -163,24 +171,6 @@ const ConfigSection = ({
                 {errors.password && (
                   <p className="text-xs text-red-500 mt-1">{errors.password.message}</p>
                 )}
-              </div>
-              
-              <div className="flex items-center">
-                {isLoading ? (
-                  <Skeleton className="h-4 w-4 mr-2" />
-                ) : (
-                  <Checkbox
-                    id="remember"
-                    checked={watch('rememberCredentials')}
-                    onCheckedChange={(checked) => 
-                      setValue('rememberCredentials', checked as boolean)
-                    }
-                    className="h-4 w-4"
-                  />
-                )}
-                <Label htmlFor="remember" className="ml-2 block text-sm text-gray-700">
-                  Remember credentials
-                </Label>
               </div>
               
               <div className="flex items-center justify-between">
@@ -355,28 +345,29 @@ const ConfigSection = ({
               </div>
               
               <div>
-                <Label htmlFor="operationMode" className="block text-sm font-medium text-gray-700 mb-1">
-                  Operation Mode
+                <Label htmlFor="logLevel" className="block text-sm font-medium text-gray-700 mb-1">
+                  Log Level
                 </Label>
                 {isLoading ? (
                   <Skeleton className="h-10 w-full" />
                 ) : (
                   <Select
-                    value={watch('operationMode')}
-                    onValueChange={(value) => setValue('operationMode', value)}
+                    value={watch('logLevel')}
+                    onValueChange={(value) => setValue('logLevel', value as 'debug' | 'info' | 'warn' | 'error')}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select operation mode" />
+                      <SelectValue placeholder="Select log level" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="human-like">Human-like (recommended)</SelectItem>
-                      <SelectItem value="fast">Fast mode</SelectItem>
-                      <SelectItem value="stealth">Stealth mode</SelectItem>
+                      <SelectItem value="debug">Debug</SelectItem>
+                      <SelectItem value="info">Info</SelectItem>
+                      <SelectItem value="warn">Warning</SelectItem>
+                      <SelectItem value="error">Error</SelectItem>
                     </SelectContent>
                   </Select>
                 )}
-                {errors.operationMode && (
-                  <p className="text-xs text-red-500 mt-1">{errors.operationMode.message}</p>
+                {errors.logLevel && (
+                  <p className="text-xs text-red-500 mt-1">{errors.logLevel.message}</p>
                 )}
               </div>
             </div>
@@ -390,9 +381,8 @@ const ConfigSection = ({
             className="bg-gray-200 hover:bg-gray-300 text-gray-800"
             onClick={() => {
               // Reset to default values
-              setValue('email', 'user@example.com');
-              setValue('password', 'password123');
-              setValue('rememberCredentials', true);
+              setValue('email', '');
+              setValue('password', '');
               setValue('minFollowers', 1000);
               setValue('maxFollowers', 2000);
               setSelectedCategories(['Sports & Outdoor', 'Fashion']);
@@ -400,8 +390,11 @@ const ConfigSection = ({
               setValue('invitationLimit', 60);
               setValue('actionDelay', 2000);
               setValue('retryAttempts', 3);
-              setValue('operationMode', 'human-like');
-              setValue('isActive', false);
+              setValue('retryDelay', 5000);
+              setValue('sessionTimeout', 3600000);
+              setValue('logLevel', 'info');
+              setValue('screenshotOnError', true);
+              setValue('maxDailyInvites', 100);
             }}
           >
             Reset to Default
@@ -409,9 +402,9 @@ const ConfigSection = ({
           <Button 
             type="submit" 
             className="bg-primary hover:bg-primary/90 text-white"
-            disabled={updateConfigMutation.isPending}
+            disabled={updateConfigMutation.isLoading}
           >
-            {updateConfigMutation.isPending ? 'Saving...' : 'Save Configuration'}
+            {updateConfigMutation.isLoading ? 'Saving...' : 'Save Configuration'}
           </Button>
         </CardFooter>
       </form>

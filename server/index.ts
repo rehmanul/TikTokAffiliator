@@ -1,70 +1,54 @@
-import express, { type Request, Response, NextFunction } from "express";
-import { registerRoutes } from "./routes";
-import { setupVite, serveStatic, log } from "./vite";
+import { config } from 'dotenv';
+// Load environment variables before any other imports
+config();
 
-const app = express();
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+import express from 'express';
+import cors from 'cors';
+import { registerRoutes } from './routes';
+import { storage } from './storage/storage-impl';
+import { CONFIG } from './config';
 
-app.use((req, res, next) => {
-  const start = Date.now();
-  const path = req.path;
-  let capturedJsonResponse: Record<string, any> | undefined = undefined;
+async function main() {
+  // Create Express app
+  const app = express();
 
-  const originalResJson = res.json;
-  res.json = function (bodyJson, ...args) {
-    capturedJsonResponse = bodyJson;
-    return originalResJson.apply(res, [bodyJson, ...args]);
-  };
+  // Middleware
+  app.use(cors({
+    origin: CONFIG.CORS_ORIGIN
+  }));
+  app.use(express.json());
 
-  res.on("finish", () => {
-    const duration = Date.now() - start;
-    if (path.startsWith("/api")) {
-      let logLine = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
-      if (capturedJsonResponse) {
-        logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
-      }
-
-      if (logLine.length > 80) {
-        logLine = logLine.slice(0, 79) + "…";
-      }
-
-      log(logLine);
-    }
-  });
-
-  next();
-});
-
-(async () => {
+  // Register routes
   const server = await registerRoutes(app);
 
-  app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
-    const status = err.status || err.statusCode || 500;
-    const message = err.message || "Internal Server Error";
-
-    res.status(status).json({ message });
-    throw err;
+  // Start server
+  const port = CONFIG.PORT;
+  server.listen(port, () => {
+    console.log(`Server running on port ${port} in ${CONFIG.NODE_ENV} mode`);
+    console.log(`CORS enabled for origin: ${CONFIG.CORS_ORIGIN}`);
   });
 
-  // importantly only setup vite in development and after
-  // setting up all the other routes so the catch-all route
-  // doesn't interfere with the other routes
-  if (app.get("env") === "development") {
-    await setupVite(app, server);
-  } else {
-    serveStatic(app);
-  }
-
-  // ALWAYS serve the app on port 5000
-  // this serves both the API and the client.
-  // It is the only port that is not firewalled.
-  const port = 5000;
-  server.listen({
-    port,
-    host: "0.0.0.0",
-    reusePort: true,
-  }, () => {
-    log(`serving on port ${port}`);
+  // Handle cleanup on shutdown
+  process.on('SIGTERM', async () => {
+    console.log('Received SIGTERM. Cleaning up...');
+    await storage.cleanup();
+    server.close(() => {
+      console.log('Server closed');
+      process.exit(0);
+    });
   });
-})();
+
+  process.on('SIGINT', async () => {
+    console.log('Received SIGINT. Cleaning up...');
+    await storage.cleanup();
+    server.close(() => {
+      console.log('Server closed');
+      process.exit(0);
+    });
+  });
+}
+
+main().catch(error => {
+  console.error('Server failed to start:', error);
+  process.exit(1);
+});

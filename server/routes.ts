@@ -1,13 +1,13 @@
 import express, { Request, Response } from "express";
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./storage";
-import { TiktokBot } from "./bot/tiktokBot";
+import { storage } from "./implementations/storage";
+import { TikTokBot } from "./bot/tiktokBot";
 import { z } from "zod";
-import { insertBotConfigSchema } from "@shared/schema";
+import { BotConfigSchema } from "../shared/schema";
 
 // Initialize the bot instance
-const bot = new TiktokBot(storage);
+const bot = new TikTokBot(storage);
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API routes
@@ -53,13 +53,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Stop the bot
   apiRouter.post("/stop", async (req: Request, res: Response) => {
     try {
-      const success = await bot.stop();
-      
-      if (success) {
-        res.json({ message: "Bot stopped successfully" });
-      } else {
-        res.status(500).json({ message: "Failed to stop bot" });
-      }
+      await bot.stop();
+      res.json({ message: "Bot stopped successfully" });
     } catch (error) {
       res.status(500).json({ message: `Failed to stop bot: ${(error as Error).message}` });
     }
@@ -79,12 +74,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   apiRouter.post("/config", async (req: Request, res: Response) => {
     try {
       // Validate request body
-      const configData = insertBotConfigSchema.parse(req.body);
+      const configData = BotConfigSchema.parse(req.body);
       
       // Update config
-      const updatedConfig = await storage.updateBotConfig(configData);
+      await storage.updateBotConfig(configData);
       
-      res.json(updatedConfig);
+      res.json({ message: "Bot configuration updated" });
     } catch (error) {
       if (error instanceof z.ZodError) {
         res.status(400).json({ message: "Invalid configuration data", errors: error.errors });
@@ -157,6 +152,5 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use("/api", apiRouter);
 
   const httpServer = createServer(app);
-
   return httpServer;
 }

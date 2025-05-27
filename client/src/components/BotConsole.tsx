@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Terminal, ChevronDown, ChevronUp, Trash2 } from 'lucide-react';
-import { Button } from '@/components/ui';
-import { ActivityLog } from '@/lib/types';
+import { Button } from './ui/button';
+import { ActivityLog } from '../lib/types';
 
 interface BotConsoleProps {
   isOpen: boolean;

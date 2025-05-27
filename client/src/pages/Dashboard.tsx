@@ -1,31 +1,37 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import Sidebar from "@/components/Sidebar";
-import Header from "@/components/Header";
-import StatusCards from "@/components/StatusCards";
-import ConfigSection from "@/components/ConfigSection";
-import ActivityLogs from "@/components/ActivityLogs";
-import VerificationModal from "@/components/VerificationModal";
-import BotConsole from "@/components/BotConsole";
-import Notification from "@/components/Notification";
-import AIContentGenerator from "@/components/AIContentGenerator";
-import { getBotStatus, getActivityLogs, getBotConfig, startBot, stopBot } from "@/lib/api";
-import { queryClient } from "@/lib/queryClient";
-import { BotStatus, BotConfig, ActivityLog, NotificationType } from "@/lib/types";
+import Sidebar from "../components/Sidebar";
+import Header from "../components/Header";
+import StatusCards from "../components/StatusCards";
+import ConfigSection from "../components/ConfigSection";
+import ActivityLogs from "../components/ActivityLogs";
+import VerificationModal from "../components/VerificationModal";
+import BotConsole from "../components/BotConsole";
+import Notification from "../components/Notification";
+import AIContentGenerator from "../components/AIContentGenerator";
+import { getBotStatus, getActivityLogs, getBotConfig, startBot, stopBot } from "../lib/api";
+import { queryClient } from "../lib/queryClient";
+import { BotStatus, BotConfig, ActivityLog, NotificationType } from "../lib/types";
+
+interface NotificationState {
+  visible: boolean;
+  title: string;
+  message: string;
+  type: NotificationType;
+  onClose: () => void;  // Made this required
+}
 
 const Dashboard = () => {
+  const closeNotification = () => setNotification(prev => ({ ...prev, visible: false }));
+  
   const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
   const [isConsoleOpen, setIsConsoleOpen] = useState(false);
-  const [notification, setNotification] = useState<{ 
-    visible: boolean; 
-    title: string; 
-    message: string; 
-    type: NotificationType;
-  }>({
+  const [notification, setNotification] = useState<NotificationState>({
     visible: false,
     title: "",
     message: "",
-    type: "success"
+    type: "success",
+    onClose: closeNotification  // Always provide the close function
   });
   
   // Fetch bot status
@@ -64,8 +70,8 @@ const Dashboard = () => {
       queryClient.invalidateQueries({ queryKey: ["/api/status"] });
       showNotification("Bot Started", "The bot has been started successfully.", "success");
     },
-    onError: (error) => {
-      showNotification("Bot Start Failed", `Error: ${error.message}`, "error");
+    onError: (err: Error) => {
+      showNotification("Bot Start Failed", `Error: ${err.message}`, "error");
     }
   });
   
@@ -76,8 +82,8 @@ const Dashboard = () => {
       queryClient.invalidateQueries({ queryKey: ["/api/status"] });
       showNotification("Bot Stopped", "The bot has been stopped successfully.", "success");
     },
-    onError: (error) => {
-      showNotification("Bot Stop Failed", `Error: ${error.message}`, "error");
+    onError: (err: Error) => {
+      showNotification("Bot Stop Failed", `Error: ${err.message}`, "error");
     }
   });
   
@@ -105,13 +111,12 @@ const Dashboard = () => {
       visible: true,
       title,
       message,
-      type
+      type,
+      onClose: closeNotification
     });
     
     // Auto-hide after 5 seconds
-    setTimeout(() => {
-      setNotification(prev => ({ ...prev, visible: false }));
-    }, 5000);
+    setTimeout(closeNotification, 5000);
   };
   
   // Toggle bot status
@@ -138,9 +143,10 @@ const Dashboard = () => {
           {/* Status Cards */}
           <StatusCards 
             botStatus={botStatus} 
-            isLoading={isLoadingStatus} 
+            botConfig={botConfig}
+            isLoading={isLoadingStatus || isLoadingConfig}
             onToggleBotStatus={toggleBotStatus}
-            isMutating={startBotMutation.isPending || stopBotMutation.isPending}
+            isMutating={startBotMutation.isLoading || stopBotMutation.isLoading}
           />
           
           {/* Config Section */}
@@ -210,7 +216,7 @@ const Dashboard = () => {
         title={notification.title}
         message={notification.message}
         type={notification.type}
-        onClose={() => setNotification(prev => ({ ...prev, visible: false }))}
+        onClose={notification.onClose}
       />
     </div>
   );

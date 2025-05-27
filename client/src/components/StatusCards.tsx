@@ -1,17 +1,20 @@
 import { Bot, Send, TrendingUp } from 'lucide-react';
-import { BotStatus } from '@/lib/types';
-import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
+import { BotStatus, BotConfig } from '../lib/types';
+import { Button } from './ui/button';
+import { Skeleton } from './ui/skeleton';
 
 interface StatusCardsProps {
   botStatus?: BotStatus;
+  botConfig?: BotConfig;
   isLoading: boolean;
   onToggleBotStatus: () => void;
   isMutating: boolean;
 }
 
-const StatusCards = ({ botStatus, isLoading, onToggleBotStatus, isMutating }: StatusCardsProps) => {
+const StatusCards = ({ botStatus, botConfig, isLoading, onToggleBotStatus, isMutating }: StatusCardsProps) => {
   const isRunning = botStatus?.status === 'running';
+  // Default to 100 if botConfig.maxDailyInvites is not available
+  const dailyTarget = botConfig?.maxDailyInvites ?? 100;
   
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
@@ -70,7 +73,7 @@ const StatusCards = ({ botStatus, isLoading, onToggleBotStatus, isMutating }: St
                 <div 
                   className="h-2 rounded-full bg-info" 
                   style={{ 
-                    width: `${Math.min(100, (botStatus?.invitationsSent || 0) / (botStatus?.invitationsTarget || 60) * 100)}%` 
+                    width: `${Math.min(100, ((botStatus?.invitationsSent || 0) / dailyTarget) * 100)}%` 
                   }}
                 ></div>
               )}
@@ -79,12 +82,12 @@ const StatusCards = ({ botStatus, isLoading, onToggleBotStatus, isMutating }: St
               {isLoading ? (
                 <Skeleton className="h-4 w-8" />
               ) : (
-                `${Math.min(100, Math.round((botStatus?.invitationsSent || 0) / (botStatus?.invitationsTarget || 60) * 100))}%`
+                `${Math.min(100, Math.round((botStatus?.invitationsSent || 0) / dailyTarget * 100))}%`
               )}
             </span>
           </div>
           <p className="mt-2 text-xs text-gray-500">
-            Daily target: {botStatus?.invitationsTarget || 60} invitations
+            Daily target: {dailyTarget} invitations
           </p>
         </div>
       </div>

@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { AlertCircle, CheckCircle, XCircle, Info, X } from 'lucide-react';
-import { NotificationType } from '@/lib/types';
-import { Button } from '@/components/ui';
+import { NotificationType } from '../lib/types';
+import { Button } from './ui/button';
 
 interface NotificationProps {
   visible: boolean;

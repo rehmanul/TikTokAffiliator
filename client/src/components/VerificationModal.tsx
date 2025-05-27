@@ -9,10 +9,10 @@ import {
   DialogFooter,
   Button,
   Input
-} from '@/components/ui';
+} from './ui';
 import { X } from 'lucide-react';
-import { submitVerificationCode } from '@/lib/api';
-import { queryClient } from '@/lib/queryClient';
+import { submitVerificationCode } from '../lib/api';
+import { queryClient } from '../lib/queryClient';
 
 interface VerificationModalProps {
   isOpen: boolean;
@@ -84,9 +84,9 @@ const VerificationModal = ({ isOpen, onClose, onSubmit }: VerificationModalProps
             <Button 
               type="submit" 
               className="bg-tiktok-teal hover:bg-tiktok-teal/90 text-white"
-              disabled={!code.trim() || verificationMutation.isPending}
+              disabled={!code.trim() || verificationMutation.isLoading}
             >
-              {verificationMutation.isPending ? 'Submitting...' : 'Submit Code'}
+              {verificationMutation.isLoading ? 'Submitting...' : 'Submit Code'}
             </Button>
           </DialogFooter>
         </form>

@@ -7,15 +7,15 @@ import {
   CardContent,
   Button,
   Skeleton
-} from '@/components/ui';
+} from './ui';
 import { 
   Filter,
   Download,
   Trash2
 } from 'lucide-react';
-import { ActivityLog, ActivityLogType } from '@/lib/types';
-import { clearActivityLogs } from '@/lib/api';
-import { queryClient } from '@/lib/queryClient';
+import { ActivityLog } from '../lib/types';
+import { clearActivityLogs } from '../lib/api';
+import { queryClient } from '../lib/queryClient';
 
 interface ActivityLogsProps {
   logs: ActivityLog[];
@@ -24,7 +24,7 @@ interface ActivityLogsProps {
 }
 
 const ActivityLogs = ({ logs, isLoading, onLogCleared }: ActivityLogsProps) => {
-  const [activeFilter, setActiveFilter] = useState<ActivityLogType | 'All'>('All');
+  const [activeFilter, setActiveFilter] = useState<ActivityLog['type'] | 'All'>('All');
   
   const clearLogsMutation = useMutation({
     mutationFn: clearActivityLogs,
@@ -77,10 +77,9 @@ const ActivityLogs = ({ logs, isLoading, onLogCleared }: ActivityLogsProps) => {
     : logs.filter(log => log.type === activeFilter);
   
   const logTypeCounts = logs.reduce((acc, log) => {
-    const type = log.type as ActivityLogType;
-    acc[type] = (acc[type] || 0) + 1;
+    acc[log.type] = (acc[log.type] || 0) + 1;
     return acc;
-  }, {} as Record<ActivityLogType, number>);
+  }, {} as Record<ActivityLog['type'], number>);
   
   return (
     <Card>
@@ -104,7 +103,7 @@ const ActivityLogs = ({ logs, isLoading, onLogCleared }: ActivityLogsProps) => {
             size="icon" 
             className="text-gray-500 hover:text-gray-700"
             onClick={() => clearLogsMutation.mutate()}
-            disabled={clearLogsMutation.isPending}>
+            disabled={clearLogsMutation.isLoading}>
             <Trash2 className="h-5 w-5" />
           </Button>
         </div>
@@ -135,9 +134,9 @@ const ActivityLogs = ({ logs, isLoading, onLogCleared }: ActivityLogsProps) => {
                   ? 'bg-tiktok-teal/10 border-tiktok-teal/30 text-tiktok-teal' 
                   : 'bg-white border-gray-300 text-gray-700'
               }`}
-              onClick={() => setActiveFilter(type as ActivityLogType)}
+              onClick={() => setActiveFilter(type as ActivityLog['type'])}
             >
-              {type} <span className="ml-1 text-xs">{logTypeCounts[type as ActivityLogType]}</span>
+              {type} <span className="ml-1 text-xs">{logTypeCounts[type as ActivityLog['type']]}</span>
             </Button>
           ))}
         </div>

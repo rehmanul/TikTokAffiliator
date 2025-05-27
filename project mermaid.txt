@@ -1,0 +1,34 @@
+TikTokAffiliator/
+├── client/                    # Frontend React application
+│   ├── src/
+│   │   ├── components/       # React components
+│   │   ├── pages/           # Page components
+│   │   └── App.tsx          # Main app component
+├── server/                   # Backend server
+│   ├── bot/                 # Bot implementation
+│   │   ├── tiktokBot.ts    # Main bot class
+│   │   ├── botActions.ts   # Bot actions
+│   │   └── captchaHandler.ts # Captcha handling
+│   ├── routes/             # API routes
+│   │   └── botRoutes.ts    # Bot endpoints
+│   └── storage/            # Storage implementation
+│       └── index.ts        # Storage interfaces
+├── shared/                  # Shared code
+│   └── schema.ts           # Type definitions
+└── test/                   # Test files
+    └── bot/               # Bot tests
+        ├── storage-test.ts
+        ├── integration-test.ts
+        ├── api-test.ts
+        └── e2e-test.ts
+
+Key Files:
+1. Bot Configuration: server/bot/tiktokBot.ts
+2. Storage Interface: server/storage/index.ts
+3. API Routes: server/routes/botRoutes.ts
+4. Type Definitions: shared/schema.ts
+5. Tests: test/bot/*
+
+To start development:
+1. Frontend: cd client && npm run dev
+2. Backend: cd server && npm run dev

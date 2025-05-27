@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TikTok Affiliate Dashboard</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f0f2f5;
+            color: #1a1a1a;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+        .header {
+            background: linear-gradient(135deg, #fe2c55 0%, #c92c55 100%);
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: clamp(1.5em, 5vw, 2em);
+            font-weight: 700;
+        }
+        .logout-button {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s ease;
+            text-decoration: none;
+        }
+        .logout-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        .affiliates-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+        }
+        .affiliate-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .affiliate-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+        .affiliate-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .affiliate-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            margin-right: 15px;
+            object-fit: cover;
+            border: 3px solid #fe2c55;
+            background-color: #ffe8ec;
+            flex-shrink: 0;
+        }
+        .affiliate-info {
+            min-width: 0;
+            flex: 1;
+        }
+        .affiliate-name {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .affiliate-username {
+            color: #666;
+            font-size: 0.9em;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .affiliate-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .stat {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            transition: background-color 0.2s ease;
+        }
+        .stat:hover {
+            background: #f0f2f5;
+        }
+        .stat-label {
+            color: #666;
+            font-size: 0.85em;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .stat-value {
+            font-weight: 600;
+            font-size: 1.2em;
+            margin-top: 8px;
+            color: #1a1a1a;
+        }
+        .category-tag {
+            display: inline-block;
+            background: #ffe8ec;
+            color: #fe2c55;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 500;
+            margin-top: 8px;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            .header {
+                padding: 20px;
+                margin-bottom: 20px;
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            .affiliate-card {
+                padding: 15px;
+            }
+            .affiliate-stats {
+                gap: 10px;
+            }
+            .stat {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>TikTok Affiliate Dashboard</h1>
+            <a href="index.html?logout=true" onclick="sessionStorage.removeItem('isLoggedIn')" class="logout-button">Sign Out</a>
+        </div>
+        <div class="affiliates-grid" id="affiliatesGrid">
+            <div class="loading">Loading affiliates data...</div>
+        </div>
+    </div>
+
+    <script>
+        // Simulate logged-in state for testing
+        if (!sessionStorage.getItem('isLoggedIn')) {
+            sessionStorage.setItem('isLoggedIn', 'true');
+            // Comment out redirect for testing dashboard directly
+            // window.location.href = 'index.html';
+        }
+
+        // Test data
+        const testData = [
+            {
+                avatar: '',
+                name: 'cottagetocity',
+                category: 'Beauty & Personal Care',
+                followers: '1.7K',
+                revenue: '£14.7K',
+                engagement: '1.4%',
+                likes: '1.8K'
+            },
+            {
+                avatar: '',
+                name: 'Test User',
+                category: 'Lifestyle',
+                followers: '10K',
+                revenue: '£10K',
+                engagement: '1%',
+                likes: '1K'
+            }
+        ];
+
+        function getInitials(name) {
+            return name
+                .split(' ')
+                .map(word => word.charAt(0))
+                .join('')
+                .toUpperCase()
+                .slice(0, 2);
+        }
+
+        function getFallbackAvatarUrl(name) {
+            const initials = getInitials(name);
+            return `https://ui-avatars.com/api/?name=${encodeURIComponent(initials)}&background=ffe8ec&color=fe2c55&size=60&bold=true`;
+        }
+
+        function createAffiliateCard(affiliate) {
+            const fallbackAvatar = getFallbackAvatarUrl(affiliate.name);
+            
+            return `
+                <div class="affiliate-card">
+                    <div class="affiliate-header">
+                        <img 
+                            src="${affiliate.avatar || fallbackAvatar}" 
+                            alt="${affiliate.name}" 
+                            class="affiliate-avatar" 
+                            onerror="this.onerror=null; this.src='${fallbackAvatar}'">
+                        <div class="affiliate-info">
+                            <div class="affiliate-name">${affiliate.name}</div>
+                            <div class="affiliate-username">@${affiliate.name.toLowerCase().replace(/\s+/g, '')}</div>
+                            <div class="category-tag">${affiliate.category}</div>
+                        </div>
+                    </div>
+                    <div class="affiliate-stats">
+                        <div class="stat">
+                            <div class="stat-label">Followers</div>
+                            <div class="stat-value">${affiliate.followers}</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-label">Revenue</div>
+                            <div class="stat-value">${affiliate.revenue}</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-label">Engagement</div>
+                            <div class="stat-value">${affiliate.engagement}</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-label">Likes</div>
+                            <div class="stat-value">${affiliate.likes}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Render affiliate cards
+        const grid = document.getElementById('affiliatesGrid');
+        grid.innerHTML = testData.map(affiliate => createAffiliateCard(affiliate)).join('');
+    </script>
+</body>
+</html>

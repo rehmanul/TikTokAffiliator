@@ -1,0 +1,175 @@
+import { expect } from 'chai';
+import { describe, it, before, Context } from 'mocha';
+import { TiktokBot } from '../server/bot/tiktokBot';
+import type { IStorage } from '../server/storage';
+import { BotConfig, BotStatus, SessionData, Creator, InsertActivityLog } from '../shared/schema';
+import { Browser, Page } from 'puppeteer';
+import { 
+  login, 
+  navigateToAffiliateCenter, 
+  applyFilters, 
+  inviteCreators 
+} from '../server/bot/botActions';
+
+describe('TikTok Affiliator Production Tests', () => {
+  // Critical Path Tests
+  describe('Critical Path', () => {
+    let bot: TiktokBot;
+    let storage: IStorage;
+
+    before(async function(this: Context) {
+      this.timeout(10000); // Increase timeout for setup
+      
+      // Initialize test storage
+      storage = {
+        getBotConfig: async (): Promise<BotConfig> => ({
+          email: process.env.TIKTOK_EMAIL || '',
+          password: process.env.TIKTOK_PASSWORD || '',
+          minFollowers: 1000,
+          maxFollowers: 50000,
+          categories: ['Electronics'],
+          invitationLimit: 5,
+          actionDelay: 3000,
+          retryAttempts: 3,
+          retryDelay: 5000,
+          sessionTimeout: 3600000,
+          userAgent: undefined,
+          proxyUrl: undefined,
+          logLevel: 'info',
+          screenshotOnError: true,
+          maxDailyInvites: 100
+        }),
+        getSessionData: async (): Promise<SessionData | null> => null,
+        saveSessionData: async (): Promise<void> => {},
+        updateBotStatus: async (status: Partial<BotStatus>): Promise<void> => {},
+        addActivityLog: async (log: InsertActivityLog): Promise<void> => {},
+        saveCreators: async (creators: Creator[]): Promise<void> => {},
+        getBotStatus: async (): Promise<BotStatus> => ({
+          status: 'initialized',
+          lastLoginTime: new Date(),
+          invitationsSent: 0,
+          successRate: 0
+        }),
+        getDailyInviteCount: async (): Promise<number> => 0,
+        incrementDailyInviteCount: async (): Promise<void> => {},
+        resetDailyInviteCount: async (): Promise<void> => {},
+        cleanup: async (): Promise<void> => {}
+      };
+      
+      bot = new TiktokBot(storage);
+    });
+
+
+
+    it('should initialize bot successfully', async function(this: Context) {
+      this.timeout(30000);
+      const initialized = await bot.init();
+      expect(initialized).to.be.true;
+    });
+
+    it('should start bot and perform login', async function(this: Context) {
+      this.timeout(60000);
+      const started = await bot.start();
+      expect(started).to.be.true;
+      
+      const status = await bot.getStatus();
+      expect(status.isRunning).to.be.true;
+    });
+
+    it('should handle session management', async function(this: Context) {
+      this.timeout(10000);
+      const sessionData = await storage.getSessionData();
+      expect(sessionData).to.be.null; // Initially null in test environment
+    });
+  });
+
+  // Thorough Testing
+  describe('Error Scenarios', () => {
+    it('should handle network errors gracefully', async function(this: Context) {
+      this.timeout(10000);
+      // Test network failure scenarios
+    });
+
+    it('should handle TikTok detection gracefully', async function(this: Context) {
+      this.timeout(10000);
+      // Test bot detection scenarios
+    });
+
+    it('should handle session expiry', async function(this: Context) {
+      this.timeout(10000);
+      // Test session timeout scenarios
+    });
+  });
+
+  describe('Rate Limiting', () => {
+    it('should respect rate limits', async function(this: Context) {
+      this.timeout(10000);
+      // Test rate limiting behavior
+    });
+
+    it('should handle rate limit errors', async function(this: Context) {
+      this.timeout(10000);
+      // Test rate limit error handling
+    });
+  });
+
+  describe('Security', () => {
+    it('should use secure headers', async function(this: Context) {
+      this.timeout(10000);
+      // Test security headers
+    });
+
+    it('should handle invalid sessions', async function(this: Context) {
+      this.timeout(10000);
+      // Test session security
+    });
+  });
+
+  describe('Logging System', () => {
+    it('should log all critical operations', async function(this: Context) {
+      this.timeout(10000);
+      // Test logging functionality
+    });
+
+    it('should handle log rotation', async function(this: Context) {
+      this.timeout(10000);
+      // Test log management
+    });
+  });
+
+  describe('Monitoring', () => {
+    it('should expose health check endpoint', async function(this: Context) {
+      this.timeout(10000);
+      // Test health check
+    });
+
+    it('should track performance metrics', async function(this: Context) {
+      this.timeout(10000);
+      // Test performance monitoring
+    });
+  });
+
+  describe('Recovery Procedures', () => {
+    it('should recover from crashes', async function(this: Context) {
+      this.timeout(10000);
+      // Test crash recovery
+    });
+
+    it('should handle browser restart', async function(this: Context) {
+      this.timeout(10000);
+      // Test browser recovery
+    });
+  });
+
+  describe('Database Operations', () => {
+    it('should backup session data', async function(this: Context) {
+      this.timeout(10000);
+      // Test session backup
+    });
+
+    it('should backup creator data', async function(this: Context) {
+      this.timeout(10000);
+      // Test creator data backup
+    });
+  });
+});

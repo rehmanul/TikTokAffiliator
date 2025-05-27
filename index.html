@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TikTok Affiliate Dashboard - Login</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f0f2f5;
+            color: #1a1a1a;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .login-container {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        .logo {
+            width: 48px;
+            height: 48px;
+            margin-bottom: 20px;
+        }
+        h1 {
+            font-size: 24px;
+            margin: 0 0 10px;
+            color: #1a1a1a;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        .login-button {
+            background: #fe2c55;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.2s ease;
+            text-decoration: none;
+            display: inline-block;
+            box-sizing: border-box;
+        }
+        .login-button:hover {
+            background: #e62a4d;
+        }
+        .error-message {
+            background: #fff3f5;
+            color: #fe2c55;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+            display: none;
+        }
+        @media (max-width: 480px) {
+            .login-container {
+                margin: 20px;
+                padding: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <svg class="logo" width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M24 48C37.2548 48 48 37.2548 48 24C48 10.7452 37.2548 0 24 0C10.7452 0 0 10.7452 0 24C0 37.2548 10.7452 48 24 48Z" fill="#FE2C55"/>
+            <path d="M24.0012 11C24.0012 11 24.0012 16.6569 24.0012 19.6569C24.0012 22.6569 26.0012 25.6569 30.0012 25.6569V20.6569C28.0012 20.6569 27.0012 19.6569 27.0012 18.6569V11H22.0012C22.0012 11 22.0012 23.6569 22.0012 28.6569C22.0012 33.6569 18.0012 34.6569 16.0012 32.6569V27.6569C17.0012 28.6569 19.0012 28.9902 19.0012 26.6569V11H24.0012Z" fill="white"/>
+        </svg>
+        <h1>TikTok Affiliate Dashboard</h1>
+        <p class="subtitle">Sign in to access your affiliate automation dashboard</p>
+        <div id="errorMessage" class="error-message"></div>
+        <button onclick="handleLogin()" class="login-button">
+            Sign in with TikTok
+        </button>
+    </div>
+
+    <script>
+        function handleLogin() {
+            // Store login state
+            sessionStorage.setItem('isLoggedIn', 'true');
+            
+            // Redirect to TikTok login
+            window.location.href = 'https://seller-uk-accounts.tiktok.com/account/login?redirect_url=' + 
+                encodeURIComponent(window.location.origin + '/dashboard.html');
+        }
+
+        // Show error message if there's an error parameter in the URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const error = urlParams.get('error');
+        if (error) {
+            const errorElement = document.getElementById('errorMessage');
+            errorElement.textContent = decodeURIComponent(error);
+            errorElement.style.display = 'block';
+        }
+
+        // Clear session if logged out
+        if (urlParams.get('logout') === 'true') {
+            sessionStorage.removeItem('isLoggedIn');
+        }
+    </script>
+</body>
+</html>

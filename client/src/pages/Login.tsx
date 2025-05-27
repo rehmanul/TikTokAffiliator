@@ -16,7 +16,7 @@ import {
   TabsContent,
   TabsList,
   TabsTrigger
-} from '@/components/ui';
+} from '../components/ui';
 import { useMutation } from '@tanstack/react-query';
 import { Loader2, Mail, MessageSquare, CheckCircle } from 'lucide-react';
 
@@ -267,8 +267,8 @@ const Login = () => {
   };
   
   const isLoading = authState === AuthState.LOADING || 
-                   startBotMutation.isPending || 
-                   verificationMutation.isPending;
+                   startBotMutation.isLoading || 
+                   verificationMutation.isLoading;
                    
   const renderContent = () => {
     switch (authState) {
@@ -300,7 +300,7 @@ const Login = () => {
                 <VerificationCodeInput 
                   value={verificationCode} 
                   onChange={setVerificationCode}
-                  isSubmitting={verificationMutation.isPending}
+                  isSubmitting={verificationMutation.isLoading}
                   onSubmit={handleVerificationSubmit}
                 />
               </TabsContent>

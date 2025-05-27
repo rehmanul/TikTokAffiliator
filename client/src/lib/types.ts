@@ -1,56 +1,13 @@
-export type BotStatus = {
-  status: "running" | "stopped" | "initialized" | "error";
-  lastLoginTime: string | null;
-  invitationsSent: number;
-  invitationsTarget: number;
-  successRate: number;
-  isRunning?: boolean;
-  creatorsFound?: number;
-};
+import type { BotConfig, BotStatus, Creator } from '../../../shared/schema';
 
-export type BotConfig = {
-  email: string;
-  password: string;
-  rememberCredentials: boolean;
-  minFollowers: number;
-  maxFollowers: number;
-  categories: string[];
-  invitationLimit: number;
-  actionDelay: number;
-  retryAttempts: number;
-  operationMode: string;
-  isActive: boolean;
-};
+export type { BotConfig, BotStatus, Creator };
 
-export type ActivityLogType = "Login" | "Filter" | "Invite" | "Error" | "Verification" | "System" | "Navigation";
+export type NotificationType = 'success' | 'error' | 'warning' | 'info';
 
-export type ActivityLogStatus = "Success" | "Pending" | "Error" | "Warning" | "Info";
-
-export type ActivityLog = {
-  id: number;
-  timestamp: string;
-  type: ActivityLogType;
-  message: string;
-  status: ActivityLogStatus;
-  details: any | null;
-};
-
-export type Creator = {
-  username: string;
-  displayName?: string;
-  category?: string;
-  followers: number;
-  demographic?: string;
-  earnings?: string;
-  engagement?: string;
-  invited?: boolean;
-};
-
-export type NotificationType = "success" | "error" | "warning" | "info";
-
-export type Notification = {
+export interface ActivityLog {
   id: string;
-  title: string;
+  timestamp: string;
+  type: 'System' | 'Bot' | 'Verification' | 'Error';
+  status: 'Success' | 'Pending' | 'Failed';
   message: string;
-  type: NotificationType;
-};
+}

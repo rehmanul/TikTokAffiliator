@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { generateAIContent } from '@/lib/api';
-import { Button, Card, CardContent, CardHeader, CardTitle, Input, Label, Textarea } from '@/components/ui';
+import { generateAIContent } from '../lib/api';
+import { Button, Card, CardContent, CardHeader, CardTitle, Input, Label, Textarea } from './ui';
 
 interface AIContentGeneratorProps {
   onContentGenerated: (content: string) => void;

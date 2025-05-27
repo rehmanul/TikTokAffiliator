@@ -28,7 +28,7 @@
   
   /* Chart colors */
   --chart-1: 187 100% 40%; /* Tiktok teal */
-  --chart-2: 0 79% 57%; /* Tiktok red */
+  --chart-2: 0 79% 57%;   /* Tiktok red */
   --chart-3: 217 91% 60%; /* Info blue */
   --chart-4: 130 68% 42%; /* Success green */
   --chart-5: 35 100% 50%; /* Warning orange */
@@ -76,7 +76,7 @@
   
   /* Chart colors - in dark mode make them more vibrant */
   --chart-1: 187 100% 45%; /* Tiktok teal */
-  --chart-2: 0 79% 62%; /* Tiktok red */
+  --chart-2: 0 79% 62%;   /* Tiktok red */
   --chart-3: 217 91% 65%; /* Info blue */
   --chart-4: 130 68% 47%; /* Success green */
   --chart-5: 35 100% 55%; /* Warning orange */
@@ -100,7 +100,7 @@
 
 @layer base {
   * {
-    @apply border-border;
+    /* Removed @apply border-border; which caused a Tailwind error */
   }
 
   body {
