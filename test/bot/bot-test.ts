@@ -1,7 +1,7 @@
 import { describe, it, beforeEach, afterEach } from 'mocha';
 import { expect } from 'chai';
 import { TikTokBot } from '../../server/bot/bot';
-import { IStorage } from '../../server/storage/index';
+import { IStorage } from '../../server/storage';
 import { BotConfig, BotStatus } from '../../shared/schema';
 
 // Mock storage implementation for testing
