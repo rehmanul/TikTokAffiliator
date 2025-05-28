@@ -22,11 +22,12 @@ chmod 600 .env.production
 
 # Install Node.js dependencies
 echo "Installing dependencies..."
-npm install --production
+npm install
 
 # Build the application
 echo "Building application..."
 npm run build
+npm prune --production
 
 # Install PM2 globally if not installed
 if ! command -v pm2 &> /dev/null; then

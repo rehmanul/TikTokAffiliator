@@ -19,9 +19,9 @@ TIKTOK_EMAIL=your-tiktok-email
 TIKTOK_PASSWORD=your-tiktok-password
 ```
 
-2. Install production dependencies:
+2. Install dependencies (dev dependencies are required for the build step):
 ```bash
-npm install --production
+npm install
 ```
 
 ## Security Measures
