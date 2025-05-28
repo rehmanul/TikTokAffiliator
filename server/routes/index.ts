@@ -2,12 +2,12 @@ import express, { Request, Response } from "express";
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "../storage/storage-impl";
-import { TiktokBot } from "../bot/tiktokBot";
+import { TikTokBot } from "../bot/tiktokBot";
 import { z } from "zod";
 import { BotConfigSchema } from "../../shared/schema";
 
 // Initialize the bot instance
-const bot = new TiktokBot(storage);
+const bot = new TikTokBot(storage);
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Create API router
