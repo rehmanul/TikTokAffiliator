@@ -89,6 +89,18 @@ npm test
 ```
 
 
+## Production
+
+Use the compiled server in production:
+
+```bash
+npm run build
+npm install -g pm2
+pm2 start dist/index.js --name tiktok-affiliator
+```
+
+See [PRODUCTION.md](PRODUCTION.md) for the full deployment guide.
+
 ## Contributing
 
 1. Fork the repository
