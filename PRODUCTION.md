@@ -63,7 +63,7 @@ pm2 logs tiktok-affiliator
 
 1. Health Checks:
 - Server status endpoint: /api/health
-- Bot status endpoint: /api/bot/status
+- Bot status endpoint: /api/status
 
 2. Logging:
 - Activity logs stored in database
