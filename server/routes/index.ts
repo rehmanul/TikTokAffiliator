@@ -1,15 +1,13 @@
-import express, { Request, Response } from "express";
-import type { Express } from "express";
+import express, { Request, Response, type Application } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "../storage/storage-impl";
 import { TikTokBot } from "../bot/tiktokBot";
 import { z } from "zod";
 import { BotConfigSchema } from "../../shared/schema";
 
-// Initialize the bot instance
-const bot = new TikTokBot(storage);
-
-export async function registerRoutes(app: Express): Promise<Server> {
+// Initialize the bot instance used in production
+const defaultBot = new TikTokBot(storage);
+export async function registerRoutes(app: Application, botInstance: TikTokBot = defaultBot): Promise<Server> {
   // Create API router
   const apiRouter = express.Router();
   
@@ -17,7 +15,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   apiRouter.get("/status", async (_req: Request, res: Response) => {
     try {
       const status = await storage.getBotStatus();
-      const botInstanceStatus = await bot.getStatus();
+      const botInstanceStatus = await botInstance.getStatus();
       
       res.json({
         ...status,
@@ -28,6 +26,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Manual login to capture a session
+  apiRouter.post("/manual-login", async (_req: Request, res: Response) => {
+    try {
+      const success = await botInstance.startManualLogin();
+      if (success) {
+        return res.json({ message: "Manual login completed successfully" });
+      }
+      return res.status(500).json({ error: "Manual login failed or was cancelled" });
+    } catch (err: any) {
+      return res.status(500).json({ error: err.message || "Unknown error" });
+    }
+  });
+
   // Start the bot
   apiRouter.post("/start", async (_req: Request, res: Response) => {
     try {
@@ -38,7 +49,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Start the bot
-      const success = await bot.start();
+        const success = await botInstance.start();
       
       if (success) {
         res.json({ message: "Bot started successfully" });
@@ -53,7 +64,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Stop the bot
   apiRouter.post("/stop", async (_req: Request, res: Response) => {
     try {
-      await bot.stop();
+      await botInstance.stop();
       res.json({ message: "Bot stopped successfully" });
     } catch (error) {
       res.status(500).json({ message: `Failed to stop bot: ${(error as Error).message}` });

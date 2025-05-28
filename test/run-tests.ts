@@ -25,7 +25,12 @@ const mockStorage: IStorage = {
   }),
   getSessionData: async (): Promise<SessionData | null> => null,
   saveSessionData: async (): Promise<void> => {},
-  updateBotStatus: async (status: Partial<BotStatus>): Promise<void> => {},
+  updateBotConfig: async (_config: Partial<BotConfig>): Promise<void> => {},
+  updateBotStatus: async (_status: Partial<BotStatus>): Promise<void> => {},
+  addActivityLog: async (): Promise<void> => {},
+  saveCreators: async (): Promise<void> => {},
+  getCreatorByUsername: async (): Promise<null> => null,
+  updateCreator: async (): Promise<void> => {},
   getBotStatus: async (): Promise<BotStatus> => ({
     status: 'initialized',
     lastLoginTime: new Date(),
@@ -46,28 +51,27 @@ describe('TikTok Affiliator Bot Tests', () => {
   });
 
   describe('Bot Initialization', () => {
-    it('should initialize successfully', async function() {
+    it('should start successfully', async function() {
       this.timeout(30000);
-      const result = await bot.init();
+      const result = await bot.start();
       expect(result).to.be.true;
+      await bot.stop();
     });
   });
 
   describe('Bot Operations', () => {
     it('should start bot operations', async function() {
       this.timeout(60000);
-      await bot.init();
       const result = await bot.start();
       expect(result).to.be.true;
     });
 
     it('should stop bot operations', async function() {
       this.timeout(30000);
-      await bot.init();
       await bot.start();
       await bot.stop();
       const status = await bot.getStatus();
-      expect(status.isRunning).to.be.false;
+      expect(status.status).to.equal('stopped');
     });
   });
 
@@ -78,14 +82,13 @@ describe('TikTok Affiliator Bot Tests', () => {
         ...mockStorage,
         getBotConfig: async () => { throw new Error('Config error'); }
       };
-      const badBot = new TikTokBot(badStorage);
-      const result = await badBot.init();
+      const badBot = new TikTokBot(badStorage as any);
+      const result = await badBot.start();
       expect(result).to.be.false;
     });
 
     it('should handle operation errors', async function() {
       this.timeout(30000);
-      await bot.init();
       // Simulate network error by disconnecting
       await bot['page']?.setOfflineMode(true);
       const result = await bot.start();
@@ -102,12 +105,16 @@ describe('TikTok Affiliator Bot Tests', () => {
         getSessionData: async () => ({
           cookies: [],
           localStorage: {},
+          sessionStorage: {},
           viewport: { width: 1920, height: 1080 },
-          userAgent: 'test-agent'
+          userAgent: 'test-agent',
+          timestamp: Date.now(),
+          createdAt: new Date(),
+          expiresAt: new Date(Date.now() + 1000)
         })
       };
-      const sessionBot = new TikTokBot(sessionStorage);
-      const result = await sessionBot.init();
+      const sessionBot = new TikTokBot(sessionStorage as any);
+      const result = await sessionBot.start();
       expect(result).to.be.true;
     });
   });
