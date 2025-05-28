@@ -1,7 +1,7 @@
 import { Browser, Page } from 'puppeteer';
 import puppeteer from 'puppeteer-extra';
 import StealthPlugin from 'puppeteer-extra-plugin-stealth';
-import { IStorage } from '../storage/index';
+import { IStorage } from '../storage';
 import { BotConfig, BotStatus } from '../../shared/schema';
 import { logger } from './utils/logger';
 import { RateLimiter } from './utils/rateLimiter';
