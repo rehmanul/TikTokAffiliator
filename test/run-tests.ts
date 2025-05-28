@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
-import { TiktokBot } from '../server/bot/tiktokBot';
+import { TikTokBot } from '../server/bot/tiktokBot';
 import { IStorage } from '../server/storage';
 import { BotConfig, BotStatus, SessionData } from '../shared/schema';
 
@@ -39,10 +39,10 @@ const mockStorage: IStorage = {
 };
 
 describe('TikTok Affiliator Bot Tests', () => {
-  let bot: TiktokBot;
+  let bot: TikTokBot;
 
   beforeEach(() => {
-    bot = new TiktokBot(mockStorage);
+    bot = new TikTokBot(mockStorage);
   });
 
   describe('Bot Initialization', () => {
@@ -78,7 +78,7 @@ describe('TikTok Affiliator Bot Tests', () => {
         ...mockStorage,
         getBotConfig: async () => { throw new Error('Config error'); }
       };
-      const badBot = new TiktokBot(badStorage);
+      const badBot = new TikTokBot(badStorage);
       const result = await badBot.init();
       expect(result).to.be.false;
     });
@@ -106,7 +106,7 @@ describe('TikTok Affiliator Bot Tests', () => {
           userAgent: 'test-agent'
         })
       };
-      const sessionBot = new TiktokBot(sessionStorage);
+      const sessionBot = new TikTokBot(sessionStorage);
       const result = await sessionBot.init();
       expect(result).to.be.true;
     });

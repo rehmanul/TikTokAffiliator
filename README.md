@@ -36,13 +36,13 @@ npm install
 cd ..
 ```
 
-3. Create a .env file in the root directory:
+3. Copy `.env.example` to `.env` and update values:
 ```env
 NODE_ENV=development
 PORT=3000
 CORS_ORIGIN=http://localhost:5173
-TIKTOK_EMAIL= rehman.shoj2@gmail.com
-TIKTOK_PASSWORD= Rehm@n998088
+TIKTOK_EMAIL=your-email
+TIKTOK_PASSWORD=your-password
 ```
 
 ## Usage
@@ -75,6 +75,19 @@ The bot can be configured through the web dashboard or by editing the config fil
 - `invitationLimit`: Maximum number of invitations per session
 - `actionDelay`: Delay between actions (ms)
 - `maxDailyInvites`: Maximum invitations per day
+
+## Running Tests
+
+1. Install dependencies:
+```bash
+npm install
+```
+
+2. Run the test suite:
+```bash
+npm test
+```
+
 
 ## Contributing
 
