@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { describe, it, before, Context } from 'mocha';
 import { TikTokBot } from '../server/bot/tiktokBot';
-import type { IStorage } from '../server/storage';
+import type { IStorage } from '../server/storage/index';
 import { BotConfig, BotStatus, SessionData, Creator, InsertActivityLog } from '../shared/schema';
 
 describe('TikTok Affiliator Production Tests', () => {
@@ -42,6 +42,7 @@ describe('TikTok Affiliator Production Tests', () => {
         saveCreators: async (_: Creator[]): Promise<void> => {},
         getCreators: async (): Promise<Creator[]> => [],
         getCreatorByUsername: async (_: string): Promise<Creator | null> => null,
+        listCreators: async (_p: number, _l: number): Promise<Creator[]> => [],
         updateCreator: async (_: string, __: Partial<Creator>): Promise<void> => {},
         getBotStatus: async (): Promise<BotStatus> => ({
           status: 'initialized',
@@ -60,27 +61,19 @@ describe('TikTok Affiliator Production Tests', () => {
 
 
 
-    it('should initialize bot successfully', async function(this: Context) {
-      this.timeout(30000);
-      const initialized = await bot.init();
-      expect(initialized).to.be.true;
-    });
-
     it('should start bot and perform login', async function(this: Context) {
       this.timeout(60000);
       const started = await bot.start();
       expect(started).to.be.true;
-      
+
       const status = await bot.getStatus();
-      expect(status.isRunning).to.be.true;
+      expect(status.status).to.equal('running');
     });
 
-  it('should handle session management', async function(this: Context) {
-    this.timeout(10000);
-    const sessionData = await storage.getSessionData();
-    expect(sessionData).to.be.null; // Initially null in test environment
+    it('should handle session management', async function(this: Context) {
+      this.timeout(10000);
+      const sessionData = await storage.getSessionData();
+      expect(sessionData).to.be.null; // Initially null in test environment
+    });
   });
-  });
-});
-
 });

@@ -1,7 +1,7 @@
 import { describe, it, beforeEach, afterEach } from 'mocha';
 import { expect } from 'chai';
 import { TikTokBot } from '../../server/bot/bot';
-import { IStorage } from '../../server/storage';
+import { IStorage } from '../../server/storage/index';
 import { BotConfig, BotStatus } from '../../shared/schema';
 
 // Mock storage implementation for testing
@@ -89,6 +89,12 @@ class MockStorage implements IStorage {
     if (index !== -1) {
       this.creators[index] = { ...this.creators[index], ...data };
     }
+  }
+
+  async listCreators(page: number, limit: number): Promise<any[]> {
+    const start = (page - 1) * limit;
+    const end = start + limit;
+    return this.creators.slice(start, end);
   }
 
   async getDailyInviteCount(): Promise<number> {
