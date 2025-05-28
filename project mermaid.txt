@@ -10,7 +10,7 @@ TikTokAffiliator/
 │   │   ├── botActions.ts   # Bot actions
 │   │   └── captchaHandler.ts # Captcha handling
 │   ├── routes/             # API routes
-│   │   └── botRoutes.ts    # Bot endpoints
+│   │   └── index.ts        # Bot endpoints
 │   └── storage/            # Storage implementation
 │       └── index.ts        # Storage interfaces
 ├── shared/                  # Shared code
@@ -24,8 +24,13 @@ TikTokAffiliator/
 
 Key Files:
 1. Bot Configuration: server/bot/tiktokBot.ts
+ codex/remove-or-refactor-server/storage/index.ts
 2. Storage Interface: server/storage.ts
 3. API Routes: server/routes/botRoutes.ts
+=======
+2. Storage Interface: server/storage/index.ts
+3. API Routes: server/routes/index.ts
+ main
 4. Type Definitions: shared/schema.ts
 5. Tests: test/bot/*
 

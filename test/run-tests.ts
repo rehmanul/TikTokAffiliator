@@ -25,8 +25,17 @@ const mockStorage: IStorage = {
   }),
   getSessionData: async (): Promise<SessionData | null> => null,
   saveSessionData: async (): Promise<void> => {},
+ codex/consolidate-routing-modules
+  updateBotConfig: async (_config: Partial<BotConfig>): Promise<void> => {},
+  updateBotStatus: async (_status: Partial<BotStatus>): Promise<void> => {},
+  addActivityLog: async (): Promise<void> => {},
+  saveCreators: async (): Promise<void> => {},
+  getCreatorByUsername: async (): Promise<null> => null,
+  updateCreator: async (): Promise<void> => {},
+=======
   updateBotConfig: async (_: Partial<BotConfig>): Promise<void> => {},
   updateBotStatus: async (status: Partial<BotStatus>): Promise<void> => {},
+ main
   getBotStatus: async (): Promise<BotStatus> => ({
     status: 'initialized',
     lastLoginTime: new Date(),
@@ -55,24 +64,35 @@ describe('TikTok Affiliator Bot Tests', () => {
   });
 
   describe('Bot Initialization', () => {
-    it('should initialize successfully', async function() {
+    it('should start successfully', async function() {
       this.timeout(30000);
+ codex/consolidate-routing-modules
+      const result = await bot.start();
+=======
       const result = await (bot as any).init?.();
+ main
       expect(result).to.be.true;
+      await bot.stop();
     });
   });
 
   describe('Bot Operations', () => {
     it('should start bot operations', async function() {
       this.timeout(60000);
+ codex/consolidate-routing-modules
+=======
       await (bot as any).init?.();
+ main
       const result = await bot.start();
       expect(result).to.be.true;
     });
 
     it('should stop bot operations', async function() {
       this.timeout(30000);
+ codex/consolidate-routing-modules
+=======
       await (bot as any).init?.();
+ main
       await bot.start();
       await bot.stop();
       const status = await bot.getStatus();
@@ -87,14 +107,22 @@ describe('TikTok Affiliator Bot Tests', () => {
         ...mockStorage,
         getBotConfig: async () => { throw new Error('Config error'); }
       };
+ codex/consolidate-routing-modules
+      const badBot = new TikTokBot(badStorage as any);
+      const result = await badBot.start();
+=======
       const badBot = new TikTokBot(badStorage);
       const result = await (badBot as any).init?.();
+ main
       expect(result).to.be.false;
     });
 
     it('should handle operation errors', async function() {
       this.timeout(30000);
+ codex/consolidate-routing-modules
+=======
       await (bot as any).init?.();
+ main
       // Simulate network error by disconnecting
       await bot['page']?.setOfflineMode(true);
       const result = await bot.start();
@@ -116,11 +144,19 @@ describe('TikTok Affiliator Bot Tests', () => {
           userAgent: 'test-agent',
           timestamp: Date.now(),
           createdAt: new Date(),
+ codex/consolidate-routing-modules
+          expiresAt: new Date(Date.now() + 1000)
+        })
+      };
+      const sessionBot = new TikTokBot(sessionStorage as any);
+      const result = await sessionBot.start();
+=======
           expiresAt: new Date()
         })
       };
       const sessionBot = new TikTokBot(sessionStorage);
       const result = await (sessionBot as any).init?.();
+ main
       expect(result).to.be.true;
     });
   });
