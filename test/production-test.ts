@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { describe, it, before, Context } from 'mocha';
 import { TikTokBot } from '../server/bot/tiktokBot';
-import type { IStorage } from '../server/storage/index';
+import type { IStorage } from '../server/storage';
 import { BotConfig, BotStatus, SessionData, Creator, InsertActivityLog } from '../shared/schema';
 
 describe('TikTok Affiliator Production Tests', () => {
