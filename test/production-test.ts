@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { describe, it, before, Context } from 'mocha';
 import { TikTokBot } from '../server/bot/tiktokBot';
-import type { IStorage } from '../server/storage';
+import type { IStorage } from '../server/storage/index';
 import { BotConfig, BotStatus, SessionData, Creator, InsertActivityLog } from '../shared/schema';
 
 describe.skip('TikTok Affiliator Production Tests', () => {
@@ -42,6 +42,7 @@ describe.skip('TikTok Affiliator Production Tests', () => {
         saveCreators: async (_: Creator[]): Promise<void> => {},
         getCreators: async (): Promise<Creator[]> => [],
         getCreatorByUsername: async (_: string): Promise<Creator | null> => null,
+        listCreators: async (_p: number, _l: number): Promise<Creator[]> => [],
         updateCreator: async (_: string, __: Partial<Creator>): Promise<void> => {},
         getBotStatus: async (): Promise<BotStatus> => ({
           status: 'initialized',

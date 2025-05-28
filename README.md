@@ -53,11 +53,12 @@ GOOGLE_API_KEY=your-google-api-key
 1. Start the development servers:
 
 ```bash
-# Start backend server
-npm run dev:server
+# Start backend server from the project root
+npm run dev
 
-# In another terminal, start frontend
-npm run dev:client
+# In another terminal, start the frontend
+cd client
+npm run dev
 ```
 
 2. Open http://localhost:5173 in your browser

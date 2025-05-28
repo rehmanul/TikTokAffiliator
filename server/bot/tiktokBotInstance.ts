@@ -1,5 +1,5 @@
 import { TikTokBot } from './tiktokBot';
-import { IStorage, SessionData, BotConfig, Creator, ActivityLog, BotStatus } from '../storage';
+import { IStorage, SessionData, BotConfig, Creator, ActivityLog, BotStatus } from '../storage/index';
 
 // Export the InMemoryStorage class so it can be used in tests
 export class InMemoryStorage implements IStorage {

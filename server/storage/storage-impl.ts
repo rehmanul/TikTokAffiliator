@@ -1,5 +1,5 @@
 import { BotConfig, BotStatus, SessionData, Creator, InsertActivityLog } from '../../shared/schema';
-import { IStorage } from '../storage';
+import { IStorage } from '../storage/index';
 
 export class StorageImplementation implements IStorage {
   private botConfig: BotConfig | null = null;
