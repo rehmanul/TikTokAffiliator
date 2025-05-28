@@ -43,7 +43,10 @@ PORT=3000
 CORS_ORIGIN=http://localhost:5173
 TIKTOK_EMAIL=your-email
 TIKTOK_PASSWORD=your-password
+GOOGLE_API_KEY=your-google-api-key
 ```
+
+`GOOGLE_API_KEY` is required for AI content generation features.
 
 ## Usage
 
