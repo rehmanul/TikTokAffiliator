@@ -12,14 +12,14 @@ if %ERRORLEVEL% neq 0 (
     exit /b 1
 )
 
-echo Step 1: Installing production dependencies...
-wsl -e bash -c "cd /mnt/c/Users/HP/Desktop/TikTokAffiliator && npm install --production"
+echo Step 1: Installing dependencies...
+wsl -e bash -c "cd /mnt/c/Users/HP/Desktop/TikTokAffiliator && npm install"
 
 echo Step 2: Setting up production environment...
 wsl -e bash -c "cd /mnt/c/Users/HP/Desktop/TikTokAffiliator && export NODE_ENV=production"
 
 echo Step 3: Building for production...
-wsl -e bash -c "cd /mnt/c/Users/HP/Desktop/TikTokAffiliator && npm run build"
+wsl -e bash -c "cd /mnt/c/Users/HP/Desktop/TikTokAffiliator && npm run build && npm prune --production"
 
 echo Step 4: Starting production server...
 wsl -e bash -c "cd /mnt/c/Users/HP/Desktop/TikTokAffiliator && node dist/index.js"
