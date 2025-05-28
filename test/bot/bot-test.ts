@@ -59,6 +59,19 @@ class MockStorage implements IStorage {
     this.activityLogs.push(log);
   }
 
+  async getActivityLogs(page: number = 1, limit: number = 10, type?: string): Promise<any[]> {
+    let logs = [...this.activityLogs];
+    if (type) {
+      logs = logs.filter(l => l.type === type);
+    }
+    const start = (page - 1) * limit;
+    return logs.slice(start, start + limit);
+  }
+
+  async clearActivityLogs(): Promise<void> {
+    this.activityLogs = [];
+  }
+
   async saveCreators(creators: any[]): Promise<void> {
     this.creators = creators;
   }
