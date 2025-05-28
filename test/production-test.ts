@@ -72,10 +72,11 @@ describe('TikTok Affiliator Production Tests', () => {
       expect(status.isRunning).to.be.true;
     });
 
-    it('should handle session management', async function(this: Context) {
-      this.timeout(10000);
-      const sessionData = await storage.getSessionData();
-      expect(sessionData).to.be.null; // Initially null in test environment
-    });
+  it('should handle session management', async function(this: Context) {
+    this.timeout(10000);
+    const sessionData = await storage.getSessionData();
+    expect(sessionData).to.be.null; // Initially null in test environment
   });
+  });
+});
 
