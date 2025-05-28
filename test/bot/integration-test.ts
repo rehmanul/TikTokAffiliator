@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { TikTokBot } from '../../server/bot/tiktokBot';
 import { InMemoryStorage } from '../../server/bot/tiktokBotInstance';
-import { SessionData, Creator, BotConfig } from '../../server/storage';
+import { SessionData, Creator, BotConfig } from '../../server/storage/index';
 
 describe('Bot Integration Tests', () => {
   let storage: InMemoryStorage;
