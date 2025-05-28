@@ -37,7 +37,10 @@ describe('TikTok Affiliator Production Tests', () => {
         updateBotConfig: async (_: Partial<BotConfig>): Promise<void> => {},
         updateBotStatus: async (_: Partial<BotStatus>): Promise<void> => {},
         addActivityLog: async (_: InsertActivityLog): Promise<void> => {},
+        getActivityLogs: async (_p: number, _l: number, _t?: string): Promise<InsertActivityLog[]> => [],
+        clearActivityLogs: async (): Promise<void> => {},
         saveCreators: async (_: Creator[]): Promise<void> => {},
+        getCreators: async (): Promise<Creator[]> => [],
         getCreatorByUsername: async (_: string): Promise<Creator | null> => null,
         updateCreator: async (_: string, __: Partial<Creator>): Promise<void> => {},
         getBotStatus: async (): Promise<BotStatus> => ({
@@ -80,3 +83,4 @@ describe('TikTok Affiliator Production Tests', () => {
   });
 });
 
+});

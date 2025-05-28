@@ -56,12 +56,14 @@ export interface IStorage {
   
   // Activity logging
   addActivityLog(log: ActivityLog): Promise<void>;
-  clearLogs(): Promise<void>;
+  getActivityLogs(page: number, limit: number, type?: string): Promise<ActivityLog[]>;
+  clearActivityLogs(): Promise<void>;
   
   // Creator management
   saveCreators(creators: Creator[]): Promise<void>;
+  getCreators(): Promise<Creator[]>;
   getCreatorByUsername(username: string): Promise<Creator | null>;
-  updateCreator(creator: Creator): Promise<void>;
+  updateCreator(username: string, data: Partial<Creator>): Promise<void>;
   listCreators(page: number, limit: number): Promise<Creator[]>;
   
   // Daily invite tracking

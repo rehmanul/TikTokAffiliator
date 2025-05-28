@@ -52,12 +52,25 @@ export class InMemoryStorage implements IStorage {
     });
   }
 
-  async clearLogs(): Promise<void> {
+  async getActivityLogs(page: number = 1, limit: number = 10, type?: string): Promise<ActivityLog[]> {
+    let logs = [...this.activityLogs];
+    if (type) {
+      logs = logs.filter(log => log.type === type);
+    }
+    const start = (page - 1) * limit;
+    return logs.slice(start, start + limit);
+  }
+
+  async clearActivityLogs(): Promise<void> {
     this.activityLogs = [];
   }
 
   async saveCreators(creators: Creator[]): Promise<void> {
     this.creators = creators;
+  }
+
+  async getCreators(): Promise<Creator[]> {
+    return this.creators;
   }
 
   async getCreatorByUsername(username: string): Promise<Creator | null> {

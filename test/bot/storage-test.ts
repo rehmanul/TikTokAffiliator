@@ -100,7 +100,7 @@ describe('InMemoryStorage', () => {
     it('should add and clear logs', async () => {
       const mockLog = { type: 'test', message: 'test log', timestamp: new Date() };
       await storage.addActivityLog(mockLog);
-      await storage.clearLogs();
+      await storage.clearActivityLogs();
       // Since we don't have a method to retrieve logs, we can't verify directly
       // But this at least ensures the methods don't throw errors
     });
