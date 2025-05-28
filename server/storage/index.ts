@@ -74,4 +74,3 @@ export interface IStorage {
 }
 
 // Re-export everything
-export * from './index';

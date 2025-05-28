@@ -3,13 +3,6 @@ import { describe, it, before, Context } from 'mocha';
 import { TikTokBot } from '../server/bot/tiktokBot';
 import type { IStorage } from '../server/storage';
 import { BotConfig, BotStatus, SessionData, Creator, InsertActivityLog } from '../shared/schema';
-import { Browser, Page } from 'puppeteer';
-import { 
-  login, 
-  navigateToAffiliateCenter, 
-  applyFilters, 
-  inviteCreators 
-} from '../server/bot/botActions';
 
 describe('TikTok Affiliator Production Tests', () => {
   // Critical Path Tests
@@ -86,93 +79,3 @@ describe('TikTok Affiliator Production Tests', () => {
     });
   });
 
-  // Thorough Testing
-  describe('Error Scenarios', () => {
-    it('should handle network errors gracefully', async function(this: Context) {
-      this.timeout(10000);
-      // Test network failure scenarios
-    });
-
-    it('should handle TikTok detection gracefully', async function(this: Context) {
-      this.timeout(10000);
-      // Test bot detection scenarios
-    });
-
-    it('should handle session expiry', async function(this: Context) {
-      this.timeout(10000);
-      // Test session timeout scenarios
-    });
-  });
-
-  describe('Rate Limiting', () => {
-    it('should respect rate limits', async function(this: Context) {
-      this.timeout(10000);
-      // Test rate limiting behavior
-    });
-
-    it('should handle rate limit errors', async function(this: Context) {
-      this.timeout(10000);
-      // Test rate limit error handling
-    });
-  });
-
-  describe('Security', () => {
-    it('should use secure headers', async function(this: Context) {
-      this.timeout(10000);
-      // Test security headers
-    });
-
-    it('should handle invalid sessions', async function(this: Context) {
-      this.timeout(10000);
-      // Test session security
-    });
-  });
-
-  describe('Logging System', () => {
-    it('should log all critical operations', async function(this: Context) {
-      this.timeout(10000);
-      // Test logging functionality
-    });
-
-    it('should handle log rotation', async function(this: Context) {
-      this.timeout(10000);
-      // Test log management
-    });
-  });
-
-  describe('Monitoring', () => {
-    it('should expose health check endpoint', async function(this: Context) {
-      this.timeout(10000);
-      // Test health check
-    });
-
-    it('should track performance metrics', async function(this: Context) {
-      this.timeout(10000);
-      // Test performance monitoring
-    });
-  });
-
-  describe('Recovery Procedures', () => {
-    it('should recover from crashes', async function(this: Context) {
-      this.timeout(10000);
-      // Test crash recovery
-    });
-
-    it('should handle browser restart', async function(this: Context) {
-      this.timeout(10000);
-      // Test browser recovery
-    });
-  });
-
-  describe('Database Operations', () => {
-    it('should backup session data', async function(this: Context) {
-      this.timeout(10000);
-      // Test session backup
-    });
-
-    it('should backup creator data', async function(this: Context) {
-      this.timeout(10000);
-      // Test creator data backup
-    });
-  });
-});
