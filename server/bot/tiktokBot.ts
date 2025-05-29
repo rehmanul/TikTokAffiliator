@@ -91,7 +91,7 @@ export class TikTokBot {
   /**
    * startManualLogin
    */
-  async startManualLogin(): Promise<boolean> {
+  async startManualLogin(): Promise<void> {
     logger.info('bot', 'Starting manual login process');
     try {
       this.browser = await puppeteer.launch({
@@ -128,7 +128,7 @@ export class TikTokBot {
       await this.browser.close();
       this.browser = null;
       this.page = null;
-      return true;
+      return;
     } catch (error) {
       logger.error('bot', 'Manual login failed', error);
       if (this.browser) {
@@ -136,7 +136,7 @@ export class TikTokBot {
       }
       this.browser = null;
       this.page = null;
-      return false;
+      throw error;
     }
   }
 
