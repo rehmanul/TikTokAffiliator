@@ -24,7 +24,10 @@ TikTokAffiliator/
 
 Key Files:
 1. Bot Configuration: server/bot/tiktokBot.ts
+ codex/refactor-or-delete-server/storage/index.ts
+
  codex/remove-or-refactor-server/storage/index.ts
+ main
 2. Storage Interface: server/storage.ts
 3. API Routes: server/routes/botRoutes.ts
 =======
