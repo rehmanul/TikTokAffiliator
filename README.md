@@ -106,6 +106,27 @@ pm2 start dist/index.js --name tiktok-affiliator
 
 See [PRODUCTION.md](PRODUCTION.md) for the full deployment guide.
 
+## Deployment on Render
+
+If you're hosting the bot on [Render](https://render.com), Puppeteer needs a
+Chrome binary to be installed during the build step. Add a `render.yaml` file in
+the repository root with the following configuration:
+
+```yaml
+services:
+  - type: web
+    name: tiktok-affiliator
+    env: node
+    buildCommand: |
+      npm ci
+      npx puppeteer browsers install chrome
+      npm run build-only
+    startCommand: npm run start
+```
+
+This downloads Chrome for Puppeteer and builds the project before Render runs
+`npm run start`.
+
 ## Contributing
 
 1. Fork the repository
