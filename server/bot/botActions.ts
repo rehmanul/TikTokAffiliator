@@ -25,9 +25,11 @@ export async function login(page: Page, credentials: { email: string; password: 
   }
 }
 
+const SELLER_BASE_URL = process.env.SELLER_BASE_URL || 'https://seller.tiktok.com';
+
 export async function navigateToAffiliateCenter(page: Page): Promise<void> {
   try {
-    await page.goto('https://seller-us.tiktok.com/homepage', { waitUntil: 'networkidle0' });
+    await page.goto(`${SELLER_BASE_URL}/homepage`, { waitUntil: 'networkidle0' });
     
     // Navigate to affiliate section
     await Promise.all([

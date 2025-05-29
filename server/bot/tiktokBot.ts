@@ -5,6 +5,8 @@
 import { Browser, Page } from 'puppeteer';
 import puppeteer from 'puppeteer-extra';
 import StealthPlugin from 'puppeteer-extra-plugin-stealth';
+
+const SELLER_BASE_URL = process.env.SELLER_BASE_URL || 'https://seller.tiktok.com';
 import { IStorage } from '../storage';
 import { BotConfig, BotStatus } from '../../shared/schema';
 
@@ -104,7 +106,7 @@ export class TikTokBot {
       // Ensure page is not null
       if (!this.page) throw new Error('New page could not be opened');
 
-      await this.page.goto('https://seller-us.tiktok.com/login', {
+      await this.page.goto(`${SELLER_BASE_URL}/login`, {
         waitUntil: 'networkidle0',
       });
 
@@ -262,7 +264,7 @@ export class TikTokBot {
   private async verifySession(): Promise<boolean> {
     if (!this.page) return false;
     try {
-      await this.page.goto('https://seller-us.tiktok.com/api/v1/user/info', {
+      await this.page.goto(`${SELLER_BASE_URL}/api/v1/user/info`, {
         waitUntil: 'networkidle0',
       });
       const content = await this.page.content();

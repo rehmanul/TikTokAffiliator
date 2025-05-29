@@ -2,6 +2,7 @@ import { expect } from 'chai';
 import { describe, it, before, after } from 'mocha';
 import puppeteer, { Browser, Page } from 'puppeteer';
 import { login } from '../../server/bot/botActions';
+const SELLER_BASE_URL = process.env.SELLER_BASE_URL || 'https://seller.tiktok.com';
 
 describe('TikTok Login Flow Tests', () => {
   let browser: Browser;
@@ -93,7 +94,7 @@ describe('TikTok Login Flow Tests', () => {
 
       // Navigate away and back to verify session persistence
       await page.goto('https://www.tiktok.com');
-      await page.goto('https://seller-us.tiktok.com/homepage');
+      await page.goto(`${SELLER_BASE_URL}/homepage`);
 
       const isStillLoggedIn = await page.evaluate(() => {
         return document.querySelector('.user-profile') !== null;

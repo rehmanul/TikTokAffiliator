@@ -3,6 +3,7 @@ import { Page } from 'puppeteer';
 
 const ENCRYPTION_KEY = process.env.SESSION_ENCRYPTION_KEY || 'your-fallback-encryption-key';
 const SESSION_EXPIRY = 24 * 60 * 60 * 1000; // 24 hours
+const SELLER_BASE_URL = process.env.SELLER_BASE_URL || 'https://seller.tiktok.com';
 
 interface EncryptedSession {
   data: string;
@@ -61,12 +62,12 @@ export async function validateAndRefreshSession(page: Page, session: SessionData
     }
 
     // Test session by making a simple request
-    await page.goto('https://seller-us.tiktok.com/api/v1/user/info', {
+    await page.goto(`${SELLER_BASE_URL}/api/v1/user/info`, {
       waitUntil: 'networkidle0'
     });
 
     const response = await page.evaluate(() => {
-      return fetch('https://seller-us.tiktok.com/api/v1/user/info').then(r => r.json());
+      return fetch(`${SELLER_BASE_URL}/api/v1/user/info`).then(r => r.json());
     });
 
     if (response.code !== 0) {
