@@ -394,8 +394,9 @@ const Login = () => {
                 <p className="text-sm text-gray-500 text-center mt-1 mb-4">
                   The bot will open a secure connection to TikTok and handle authentication automatically.
                 </p>
-                <p className="text-sm text-gray-700 font-medium mb-1">Default Credentials:</p>
-                <p className="text-xs text-gray-500 mb-4">rehman.shoj2@gmail.com / Rehm@n998088</p>
+                <p className="text-sm text-gray-500 text-center mt-1 mb-4">
+                  Please log in using your TikTok Shop account credentials.
+                </p>
               </div>
             </CardContent>
             
