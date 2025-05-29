@@ -95,7 +95,7 @@ export class TikTokBot {
       this.browser = await puppeteer.launch({
         headless: false,
         defaultViewport: null,
-        args: ['--start-maximized'],
+        args: ['--start-maximized', '--no-sandbox', '--disable-setuid-sandbox'],
       });
       // Ensure browser is not null
       if (!this.browser) throw new Error('Browser failed to launch');
