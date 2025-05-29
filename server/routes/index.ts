@@ -29,13 +29,10 @@ export async function registerRoutes(app: Application, botInstance: TikTokBot = 
   // Manual login to capture a session
   apiRouter.post("/manual-login", async (_req: Request, res: Response) => {
     try {
-      const success = await botInstance.startManualLogin();
-      if (success) {
-        return res.json({ message: "Manual login completed successfully" });
-      }
-      return res.status(500).json({ error: "Manual login failed or was cancelled" });
+      await botInstance.startManualLogin();
+      return res.json({ message: "Manual login completed successfully" });
     } catch (err: any) {
-      return res.status(500).json({ error: err.message || "Unknown error" });
+      return res.status(500).json({ error: err.message || "Manual login failed" });
     }
   });
 
