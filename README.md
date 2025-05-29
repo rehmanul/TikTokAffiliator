@@ -95,10 +95,11 @@ npm test
 
 ## Production
 
-Use the compiled server in production:
+Use the compiled server in production. `npm install` triggers the build via a
+`postinstall` script so running `npm start` is usually enough:
 
 ```bash
-npm run build                # or simply `npm start` which runs the build step automatically
+npm start
 npm install -g pm2
 pm2 start dist/index.js --name tiktok-affiliator
 ```

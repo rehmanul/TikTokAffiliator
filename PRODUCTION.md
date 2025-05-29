@@ -39,22 +39,19 @@ npm install
 
 ## Deployment Steps
 
-1. Build the application:
-```bash
-npm run build
-```
-
-2. Install PM2 globally:
+1. Install PM2 globally:
 ```bash
 npm install -g pm2
 ```
 
-3. Start with PM2:
+`npm install` will automatically build the project via the `postinstall` script.
+
+2. Start with PM2:
 ```bash
 pm2 start dist/index.js --name tiktok-affiliator
 ```
 
-4. Monitor logs:
+3. Monitor logs:
 ```bash
 pm2 logs tiktok-affiliator
 ```
