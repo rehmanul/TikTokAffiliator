@@ -19,6 +19,7 @@ import {
 } from '../components/ui';
 import { useMutation } from '@tanstack/react-query';
 import { Loader2, Mail, MessageSquare, CheckCircle } from 'lucide-react';
+import { manualLogin } from '../lib/api';
 
 // Enum for authentication states
 enum AuthState {
@@ -200,6 +201,18 @@ const Login = () => {
       setAuthState(AuthState.ERROR);
     }
   });
+
+  // Manual login mutation to capture a session before starting the bot
+  const manualLoginMutation = useMutation({
+    mutationFn: manualLogin,
+    onSuccess: () => {
+      startBotMutation.mutate();
+    },
+    onError: (error: any) => {
+      setError(error.message || 'Failed to initiate manual login. Please try again.');
+      setAuthState(AuthState.ERROR);
+    }
+  });
   
   // Verification code submission
   const verificationMutation = useMutation({
@@ -244,7 +257,7 @@ const Login = () => {
   const handleStartLogin = () => {
     setError(null);
     setAuthState(AuthState.LOADING);
-    startBotMutation.mutate();
+    manualLoginMutation.mutate();
   };
   
   // Handle verification code submission
@@ -266,8 +279,9 @@ const Login = () => {
     }, 500);
   };
   
-  const isLoading = authState === AuthState.LOADING || 
-                   startBotMutation.isLoading || 
+  const isLoading = authState === AuthState.LOADING ||
+                   manualLoginMutation.isLoading ||
+                   startBotMutation.isLoading ||
                    verificationMutation.isLoading;
                    
   const renderContent = () => {

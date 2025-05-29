@@ -52,6 +52,11 @@ export async function startBot(): Promise<{ message: string }> {
   return res.json();
 }
 
+export async function manualLogin(): Promise<{ message: string }> {
+  const res = await apiRequest("POST", "/api/manual-login", undefined);
+  return res.json();
+}
+
 export async function stopBot(): Promise<{ message: string }> {
   const res = await apiRequest("POST", "/api/stop", undefined);
   return res.json();
