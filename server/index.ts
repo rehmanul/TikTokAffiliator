@@ -4,9 +4,10 @@ config();
 
 import express from 'express';
 import cors from 'cors';
+import path from 'path';
 import { registerRoutes } from './routes';
 import { storage } from './storage/storage-impl';
-import { CONFIG } from './config';
+import { CONFIG, PATHS } from './config';
 
 async function main() {
   // Create Express app
@@ -18,8 +19,16 @@ async function main() {
   }));
   app.use(express.json());
 
-  // Register routes
+  // Register API routes
   const server = await registerRoutes(app);
+
+  // Serve static frontend in production
+  if (CONFIG.NODE_ENV === 'production') {
+    app.use(express.static(PATHS.public));
+    app.get('*', (_req, res) => {
+      res.sendFile(path.resolve(PATHS.public, 'index.html'));
+    });
+  }
 
   // Start server
   const port = CONFIG.PORT;
