@@ -80,6 +80,12 @@ export class StorageImplementation implements IStorage {
     }
   }
 
+  async listCreators(page: number, limit: number): Promise<Creator[]> {
+    const all = Array.from(this.creators.values());
+    const start = (page - 1) * limit;
+    return all.slice(start, start + limit);
+  }
+
   async getDailyInviteCount(): Promise<number> {
     return this.dailyInviteCount;
   }
