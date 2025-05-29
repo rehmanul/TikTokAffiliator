@@ -98,7 +98,7 @@ npm test
 Use the compiled server in production:
 
 ```bash
-npm run build
+npm run build                # or simply `npm start` which runs the build step automatically
 npm install -g pm2
 pm2 start dist/index.js --name tiktok-affiliator
 ```
