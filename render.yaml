@@ -4,6 +4,6 @@ services:
     env: node
     buildCommand: |
       npm ci
-      npx puppeteer browsers install chrome
+      npm run install-chrome
       npm run build-only
     startCommand: npm run start
