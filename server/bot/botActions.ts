@@ -9,7 +9,10 @@ interface FilterOptions {
 
 export async function login(page: Page, credentials: { email: string; password: string }): Promise<void> {
   try {
-    await page.goto('https://www.tiktok.com/login', { waitUntil: 'networkidle0' });
+    await page.goto('https://www.tiktok.com/login', {
+      waitUntil: 'networkidle0',
+      timeout: 120000,
+    });
     
     // Fill in login form
     await page.type('input[name="email"]', credentials.email);
@@ -17,8 +20,8 @@ export async function login(page: Page, credentials: { email: string; password: 
     
     // Click login button and wait for navigation
     await Promise.all([
-      page.waitForNavigation({ waitUntil: 'networkidle0' }),
-      page.click('button[type="submit"]')
+      page.waitForNavigation({ waitUntil: 'networkidle0', timeout: 120000 }),
+      page.click('button[type="submit"]'),
     ]);
   } catch (error) {
     throw new Error(`Login failed: ${error instanceof Error ? error.message : 'Unknown error'}`);

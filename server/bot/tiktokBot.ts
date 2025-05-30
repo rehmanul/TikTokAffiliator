@@ -109,8 +109,12 @@ export class TikTokBot {
       this.page = await this.browser.newPage();
       if (!this.page) throw new Error('New page could not be opened');
 
+      // Allow slower network conditions during login
+      this.page.setDefaultNavigationTimeout(120000);
+
       await this.page.goto(`${SELLER_BASE_URL}/login`, {
         waitUntil: 'networkidle0',
+        timeout: 120000,
       });
 
       if (headless) {
