@@ -55,6 +55,15 @@ async function main() {
       process.exit(0);
     });
   });
+
+  // Log unhandled promise rejections to avoid silent crashes
+  process.on('unhandledRejection', (reason) => {
+    console.error('Unhandled Rejection:', reason);
+  });
+
+  process.on('uncaughtException', (err) => {
+    console.error('Uncaught Exception:', err);
+  });
 }
 
 main().catch(error => {
