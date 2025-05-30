@@ -9,6 +9,7 @@ import StealthPlugin from 'puppeteer-extra-plugin-stealth';
 const SELLER_BASE_URL = process.env.SELLER_BASE_URL || 'https://seller.tiktok.com';
 import { IStorage } from '../storage';
 import { BotConfig, BotStatus } from '../../shared/schema';
+import { login } from './botActions';
 
 // Placeholder logger
 const logger = {
@@ -91,35 +92,40 @@ export class TikTokBot {
   /**
    * startManualLogin
    */
-  async startManualLogin(): Promise<void> {
+  async startManualLogin(): Promise<boolean> {
     logger.info('bot', 'Starting manual login process');
+    const config = await this.storage.getBotConfig();
     try {
+      const headless = process.env.HEADLESS_LOGIN !== 'false' && !process.env.DISPLAY;
       this.browser = await puppeteer.launch({
-        headless: false,
-        defaultViewport: null,
-        args: ['--start-maximized', '--no-sandbox', '--disable-setuid-sandbox'],
+        headless,
+        defaultViewport: headless ? { width: 1920, height: 1080 } : null,
+        args: headless
+          ? ['--no-sandbox', '--disable-setuid-sandbox']
+          : ['--start-maximized', '--no-sandbox', '--disable-setuid-sandbox'],
       });
-      // Ensure browser is not null
       if (!this.browser) throw new Error('Browser failed to launch');
 
       this.page = await this.browser.newPage();
-      // Ensure page is not null
       if (!this.page) throw new Error('New page could not be opened');
 
       await this.page.goto(`${SELLER_BASE_URL}/login`, {
         waitUntil: 'networkidle0',
       });
 
-      // Wait for dashboard presence or similar
+      if (headless) {
+        await login(this.page, {
+          email: config.email,
+          password: config.password,
+        });
+      }
+
       await this.page.waitForSelector('.dashboard-container, .seller-dashboard', {
         timeout: 300000,
       });
 
-      // Capture session
       const session = await this.captureSession();
-      // required fields
       session.createdAt = new Date();
-      // Just an example: expires in 24hrs
       session.expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
       await this.storage.saveSessionData(session);
@@ -128,7 +134,7 @@ export class TikTokBot {
       await this.browser.close();
       this.browser = null;
       this.page = null;
-      return;
+      return true;
     } catch (error) {
       logger.error('bot', 'Manual login failed', error);
       if (this.browser) {

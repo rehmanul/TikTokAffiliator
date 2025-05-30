@@ -18,8 +18,8 @@ describe('End-to-End Bot Tests', () => {
   });
 
   describe('Manual Login Flow', () => {
-    it('should launch visible browser for manual login', async function() {
-      this.timeout(300000); // 5 minutes for manual interaction
+    it('should complete the manual login flow', async function() {
+      this.timeout(300000); // allow plenty of time
 
       const loginResult = await bot.startManualLogin();
       expect(loginResult).to.be.true;
