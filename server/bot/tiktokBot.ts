@@ -135,6 +135,11 @@ export class TikTokBot {
       await this.storage.saveSessionData(session);
 
       logger.info('bot', 'Manual login successful, session saved');
+      await this.storage.updateBotStatus({
+        status: 'initialized',
+        lastLoginTime: new Date(),
+        lastError: undefined
+      });
       await this.browser.close();
       this.browser = null;
       this.page = null;
@@ -146,6 +151,10 @@ export class TikTokBot {
       }
       this.browser = null;
       this.page = null;
+      await this.storage.updateBotStatus({
+        status: 'error',
+        lastError: (error as Error)?.message || String(error)
+      });
       throw error;
     }
   }
