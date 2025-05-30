@@ -8,6 +8,7 @@ import path from 'path';
 import { registerRoutes } from './routes';
 import { storage } from './storage/storage-impl';
 import { CONFIG, PATHS } from './config';
+import { jsonErrorHandler } from './middleware/jsonErrorHandler';
 
 async function main() {
   // Create Express app
@@ -21,6 +22,9 @@ async function main() {
 
   // Register API routes
   const server = await registerRoutes(app);
+
+  // Error handling
+  app.use(jsonErrorHandler);
 
   // Serve static frontend in production
   if (CONFIG.NODE_ENV === 'production') {
