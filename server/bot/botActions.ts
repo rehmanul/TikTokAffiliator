@@ -1,6 +1,9 @@
 import { Page } from 'puppeteer';
 import { Creator } from '../../shared/schema';
 
+// Base URL for seller login, can be overridden via SELLER_BASE_URL environment variable
+const SELLER_BASE_URL = process.env.SELLER_BASE_URL || 'https://seller.tiktok.com';
+
 interface FilterOptions {
   minFollowers: number;
   maxFollowers: number;
@@ -9,26 +12,31 @@ interface FilterOptions {
 
 export async function login(page: Page, credentials: { email: string; password: string }): Promise<void> {
   try {
-    await page.goto('https://www.tiktok.com/login', {
+    // Navigate to the seller login page
+    await page.goto(`${SELLER_BASE_URL}/login`, {
       waitUntil: 'networkidle0',
       timeout: 120000,
     });
-    
+
+    // Switch to email login panel if present
+    const emailTab = await page.$('#TikTok_Ads_SSO_Login_Email_Panel_Button');
+    if (emailTab) {
+      await emailTab.click();
+    }
+
     // Fill in login form
     await page.type('input[name="email"]', credentials.email);
     await page.type('input[name="password"]', credentials.password);
-    
+
     // Click login button and wait for navigation
     await Promise.all([
       page.waitForNavigation({ waitUntil: 'networkidle0', timeout: 120000 }),
-      page.click('button[type="submit"]'),
+      page.click('#TikTok_Ads_SSO_Login_Btn'),
     ]);
   } catch (error) {
     throw new Error(`Login failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
-
-const SELLER_BASE_URL = process.env.SELLER_BASE_URL || 'https://seller.tiktok.com';
 
 export async function navigateToAffiliateCenter(page: Page): Promise<void> {
   try {
