@@ -36,6 +36,14 @@ npm install
 cd ..
 ```
 
+The server's start script will check for a Chrome binary and automatically
+download it if necessary. If you run into errors about Puppeteer not finding
+Chrome, you can manually install it with:
+
+```bash
+npm run install-chrome
+```
+
 3. Copy `.env.example` to `.env` and update values:
 ```env
 NODE_ENV=development
