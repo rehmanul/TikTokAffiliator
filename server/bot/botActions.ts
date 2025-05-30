@@ -15,17 +15,28 @@ export async function login(page: Page, credentials: { email: string; password: 
     // Navigate to the seller login page
     await page.goto(`${SELLER_BASE_URL}/login`, {
       waitUntil: 'networkidle0',
-      timeout: 120000,
+      timeout: 120000
     });
 
-    // Switch to email login panel if present
+    // Switch to email login panel if present and wait for the input
     const emailTab = await page.$('#TikTok_Ads_SSO_Login_Email_Panel_Button');
     if (emailTab) {
-      await emailTab.click();
+      await Promise.all([
+        page.waitForSelector('input[name="email"], input[type="email"]', {
+          visible: true,
+          timeout: 30000
+        }),
+        emailTab.click()
+      ]);
+    } else {
+      await page.waitForSelector('input[name="email"], input[type="email"]', {
+        visible: true,
+        timeout: 30000
+      });
     }
 
     // Fill in login form
-    await page.type('input[name="email"]', credentials.email);
+    await page.type('input[name="email"], input[type="email"]', credentials.email);
     await page.type('input[name="password"]', credentials.password);
 
     // Click login button and wait for navigation
